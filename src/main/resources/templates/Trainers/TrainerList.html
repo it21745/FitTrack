@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{page_layout/layout}">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Trainer List</title>
+</head>
+<body>
+<div layout:fragment="main-content">
+  <div th:if="${ not#lists.isEmpty(trainer_list)}">
+    <table class="table">
+      <thead>
+      <tr>
+        <th>Id</th>
+        <th>username</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="trainer : ${trainer_list}">
+        <td th:text="${trainer.id}"></td>
+        <td th:text="${trainer.username}"></td>
+        
+        
+      </tr>
+      </tbody>
+    </table>
+  </div>
+  <div th:if="${ #lists.isEmpty(trainer_list)}">
+    No Trainers found!
+  </div>
+	
+</div>
+</body>
+</html>
