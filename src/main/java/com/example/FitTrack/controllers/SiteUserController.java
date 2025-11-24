@@ -4,8 +4,11 @@ import com.example.FitTrack.entities.SiteUser;
 import com.example.FitTrack.enums.UserRole;
 import com.example.FitTrack.service.SiteUserService;
 
+import jakarta.validation.Valid;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
@@ -32,8 +35,13 @@ public class SiteUserController {
     }
 
     @PostMapping("/save")
-    public String saveUser(@ModelAttribute("user") SiteUser user) {
-        userService.saveUser(user);
-        return "redirect:/users";
+    public String saveUser(@Valid @ModelAttribute("user") SiteUser user, BindingResult theBindingResult) {
+        if (theBindingResult.hasErrors()) {
+        	System.out.println("Error, bad input for user");
+        	return "users/form";
+        }else {
+        	userService.saveUser(user);
+            return "redirect:/users";
+        }
     }
 }

@@ -5,6 +5,9 @@ import java.util.List;
 import com.example.FitTrack.enums.UserRole;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 @Entity
 public class SiteUser {
@@ -15,18 +18,26 @@ public class SiteUser {
 	private int id;
 	
 	@Column(nullable = false, unique = true, length = 50)
+	@NotBlank(message = "Username cannot be blank")
+	@Size(min = 3, max = 50, message = "Username cannot be under 3 or over 50 characters")
 	private String username;
 	
 	@Column(nullable = false, unique = true, length = 50)
+	@NotBlank(message = "Email cannot be blank")
+	@Email
 	private String email;
 	
 	@Column(nullable = false)
+	@NotBlank(message = "Password cannot be blank")
+	@Size(min = 3, max = 50, message = "Password cannot be under 3 or over 50 characters")
 	private String passwordHash;
 	
 	@Column(nullable = false)
+	@NotBlank(message = "Name cannot be blank")
 	private String firstName;
 	
 	@Column(nullable = false)
+	@NotBlank(message = "Surname cannot be blank")
 	private String lastName;
 	
 	@Lob

@@ -1,49 +1,38 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{page_layout/layout}">
+
 <head>
-    <meta charset="UTF-8">
-    <title>Create User</title>
+<meta charset="UTF-8">
+<title>Title</title>
 </head>
 <body>
+	<div layout:fragment="main-content">
 
-<h1>Create User</h1>
+		<h1>Create User</h1>
 
-<form th:action="@{/users/save}" th:object="${user}" method="post">
+		<form th:action="@{/users/save}" th:object="${user}" method="post">
 
-    <label>Username:</label>
-    <input type="text" th:field="*{username}" required>
-    <br>
+			<label>Username:</label> <input type="text" th:field="*{username}"
+				required> <br> <label>Email:</label> <input
+				type="email" th:field="*{email}" required> <br> <label>Password:</label>
+			<input type="password" th:field="*{passwordHash}" required> <br>
 
-    <label>Email:</label>
-    <input type="email" th:field="*{email}" required>
-    <br>
+			<label>First Name:</label> <input type="text" th:field="*{firstName}"
+				required> <br> <label>Last Name:</label> <input
+				type="text" th:field="*{lastName}" required> <br> <label>Info:</label>
+			<textarea th:field="*{info}"></textarea>
+			<br> <label>Role:</label> <select th:field="*{role}">
+				<option th:each="r : ${roles}" th:value="${r}" th:text="${r}"></option>
+			</select> <br>
+			<br>
 
-    <label>Password:</label>
-    <input type="password" th:field="*{passwordHash}" required>
-    <br>
+			<button type="submit">Save</button>
+		</form>
 
-    <label>First Name:</label>
-    <input type="text" th:field="*{firstName}" required>
-    <br>
+		<a th:href="@{/users}">Back to list</a>
 
-    <label>Last Name:</label>
-    <input type="text" th:field="*{lastName}" required>
-    <br>
-
-    <label>Info:</label>
-    <textarea th:field="*{info}"></textarea>
-    <br>
-
-    <label>Role:</label>
-    <select th:field="*{role}">
-        <option th:each="r : ${roles}" th:value="${r}" th:text="${r}"></option>
-    </select>
-    <br><br>
-
-    <button type="submit">Save</button>
-</form>
-
-<a th:href="@{/users}">Back to list</a>
-
+	</div>
 </body>
 </html>
