@@ -2,7 +2,6 @@ package com.example.FitTrack.entities;
 
 import java.util.List;
 
-import com.example.FitTrack.enums.UserRole;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -10,6 +9,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 @Entity
+@Table(	name = "site_users")
 public class SiteUser {
 
 	@Id
@@ -44,9 +44,11 @@ public class SiteUser {
 	@Column
 	private String info;
 	
-	@Enumerated(EnumType.STRING)
-	@Column(nullable = false)
-	private UserRole role;
+	@ManyToMany(fetch = FetchType.LAZY)
+	@JoinTable(	name = "user_roles",
+    	joinColumns = @JoinColumn(name = "user_id"),
+    	inverseJoinColumns = @JoinColumn(name = "role_id"))
+	private List<UserRole> roles;
 	
 	//orphanRemoval = true, δηλαδη αν διαγραψουμε τον trainer θα διαγραφουν τα availabilities του
 	@OneToMany(mappedBy = "myTrainer", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
@@ -61,24 +63,24 @@ public class SiteUser {
 	
     
     //constructors
-    public SiteUser(String username, String email, String passwordHash, String firstName, String lastName, String info,
-			UserRole role, List<Availability> myAvailabilities, List<Appointment> appointmentsAsTrainer,
-			List<Appointment> appointmentsAsTrainee) {
+    
+    
+    public SiteUser() {}
+
+    public SiteUser(
+			@NotBlank(message = "Username cannot be blank") @Size(min = 3, max = 50, message = "Username cannot be under 3 or over 50 characters") String username,
+			@NotBlank(message = "Email cannot be blank") @Email String email,
+			@NotBlank(message = "Password cannot be blank") @Size(min = 3, max = 50, message = "Password cannot be under 3 or over 50 characters") String passwordHash,
+			@NotBlank(message = "Name cannot be blank") String firstName,
+			@NotBlank(message = "Surname cannot be blank") String lastName) {
 		this.username = username;
 		this.email = email;
 		this.passwordHash = passwordHash;
 		this.firstName = firstName;
 		this.lastName = lastName;
-		this.info = info;
-		this.role = role;
-		this.myAvailabilities = myAvailabilities;
-		this.appointmentsAsTrainer = appointmentsAsTrainer;
-		this.appointmentsAsTrainee = appointmentsAsTrainee;
 	}
-    
-    public SiteUser() {}
 
-    //getters and setters
+	//getters and setters
 	public int getId() {
 		return id;
 	}
@@ -135,12 +137,12 @@ public class SiteUser {
 		this.info = info;
 	}
 
-	public UserRole getRole() {
-		return role;
+	public List<UserRole> getRoles() {
+		return roles;
 	}
 
-	public void setRole(UserRole role) {
-		this.role = role;
+	public void setRoles(List<UserRole> roles) {
+		this.roles = roles;
 	}
 
 	public List<Availability> getMyAvailabilities() {

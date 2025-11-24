@@ -9,7 +9,7 @@ import com.example.FitTrack.repository.SiteUserRepository;
 import jakarta.transaction.Transactional;
 
 import com.example.FitTrack.entities.SiteUser;
-import com.example.FitTrack.enums.UserRole;
+import com.example.FitTrack.entities.UserRole;
 
 @Service
 public class SiteUserService {
@@ -30,7 +30,7 @@ public class SiteUserService {
 	
 	@Transactional
 	public List<SiteUser> getUsersByRole(UserRole role){
-		return repo.findByRole(role);
+		return repo.findByRoles(role);
 	}
 	
 	@Transactional

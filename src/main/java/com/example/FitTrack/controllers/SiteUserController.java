@@ -1,8 +1,9 @@
 package com.example.FitTrack.controllers;
 
 import com.example.FitTrack.entities.SiteUser;
-import com.example.FitTrack.enums.UserRole;
+import com.example.FitTrack.entities.UserRole;
 import com.example.FitTrack.service.SiteUserService;
+import com.example.FitTrack.service.UserRoleService;
 
 import jakarta.validation.Valid;
 
@@ -30,7 +31,7 @@ public class SiteUserController {
     @GetMapping("/new")
     public String showCreateForm(Model model) {
         model.addAttribute("user", new SiteUser());
-        model.addAttribute("roles", UserRole.values());
+        model.addAttribute("roles", new UserRole());
         return "users/form";
     }
 

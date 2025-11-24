@@ -1,7 +1,7 @@
 package com.example.FitTrack.repository;
 
 import com.example.FitTrack.entities.SiteUser;
-import com.example.FitTrack.enums.UserRole;
+import com.example.FitTrack.entities.UserRole;
 
 import java.util.List;
 
@@ -13,6 +13,6 @@ public interface SiteUserRepository extends JpaRepository<SiteUser, Integer> {
 	
 	//apparently this works automatically due to spring magic
 	//it sees the method "findByRole" and understands what it should do and implements it on its own
-	List<SiteUser> findByRole(UserRole role);
+	List<SiteUser> findByRoles(UserRole role);
 	SiteUser findByUsername(String username);
 }
