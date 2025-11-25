@@ -9,11 +9,12 @@ import com.example.FitTrack.service.SiteUserService;
 import com.example.FitTrack.service.UserRoleService;
 
 @Controller
-@RequestMapping("/Trainers")
+@RequestMapping("/trainers")
 public class TrainerController {
 
 	private SiteUserService userService;
 	private UserRoleService roleService;
+	
 
 	public TrainerController(SiteUserService userService, UserRoleService roleService) {
 		this.userService = userService;
@@ -22,8 +23,8 @@ public class TrainerController {
 	
 	@GetMapping("")
 	public String showAllTrainers(Model model) {
-		model.addAttribute("trainer_list",userService.getUsersByRole(roleService.getRoleByName("TRAINER")));
-		return "Trainers/TrainerList";
+		model.addAttribute("trainer_list",userService.getUsersByRole(roleService.getRoleByName("ROLE_TRAINER")));
+		return "trainers/trainerList";
 	}
 	
 	

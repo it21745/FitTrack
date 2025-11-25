@@ -1,7 +1,7 @@
 package com.example.FitTrack.entities;
 
 import java.util.List;
-
+import java.util.Set;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -27,10 +27,9 @@ public class SiteUser {
 	@Email
 	private String email;
 	
-	@Column(nullable = false)
+	@Column(nullable = false, length = 255)
 	@NotBlank(message = "Password cannot be blank")
-	@Size(min = 3, max = 50, message = "Password cannot be under 3 or over 50 characters")
-	private String passwordHash;
+	private String password;
 	
 	@Column(nullable = false)
 	@NotBlank(message = "Name cannot be blank")
@@ -48,7 +47,7 @@ public class SiteUser {
 	@JoinTable(	name = "user_roles",
     	joinColumns = @JoinColumn(name = "user_id"),
     	inverseJoinColumns = @JoinColumn(name = "role_id"))
-	private List<UserRole> roles;
+	private Set<UserRole> roles;
 	
 	//orphanRemoval = true, δηλαδη αν διαγραψουμε τον trainer θα διαγραφουν τα availabilities του
 	@OneToMany(mappedBy = "myTrainer", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
@@ -70,12 +69,12 @@ public class SiteUser {
     public SiteUser(
 			@NotBlank(message = "Username cannot be blank") @Size(min = 3, max = 50, message = "Username cannot be under 3 or over 50 characters") String username,
 			@NotBlank(message = "Email cannot be blank") @Email String email,
-			@NotBlank(message = "Password cannot be blank") @Size(min = 3, max = 50, message = "Password cannot be under 3 or over 50 characters") String passwordHash,
+			@NotBlank(message = "Password cannot be blank") @Size(min = 3, max = 50, message = "Password cannot be under 3 or over 50 characters") String password,
 			@NotBlank(message = "Name cannot be blank") String firstName,
 			@NotBlank(message = "Surname cannot be blank") String lastName) {
 		this.username = username;
 		this.email = email;
-		this.passwordHash = passwordHash;
+		this.password = password;
 		this.firstName = firstName;
 		this.lastName = lastName;
 	}
@@ -105,12 +104,12 @@ public class SiteUser {
 		this.email = email;
 	}
 
-	public String getPasswordHash() {
-		return passwordHash;
+	public String getPassword() {
+		return password;
 	}
 
-	public void setPasswordHash(String passwordHash) {
-		this.passwordHash = passwordHash;
+	public void setPassword(String password) {
+		this.password = password;
 	}
 
 	public String getFirstName() {
@@ -137,11 +136,11 @@ public class SiteUser {
 		this.info = info;
 	}
 
-	public List<UserRole> getRoles() {
+	public Set<UserRole> getRoles() {
 		return roles;
 	}
 
-	public void setRoles(List<UserRole> roles) {
+	public void setRoles(Set<UserRole> roles) {
 		this.roles = roles;
 	}
 

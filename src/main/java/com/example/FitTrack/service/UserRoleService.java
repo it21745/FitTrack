@@ -10,7 +10,7 @@ import com.example.FitTrack.repository.UserRoleRepository;
 import jakarta.transaction.Transactional;
 
 @Service
-public class UserRoleService {
+public class UserRoleService{
 	private UserRoleRepository repo;
 
 	public UserRoleService(UserRoleRepository repo) {
@@ -26,11 +26,9 @@ public class UserRoleService {
 	
 	@Transactional
 	public UserRole getRoleByName(String name) {
-		return repo.findByName(name);
+		return repo.findByName(name).get();
 	}
 	
-//	public UserRole getRoleOfUser() {
-//		
-//	}
+
 	
 }

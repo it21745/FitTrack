@@ -16,7 +16,7 @@
 		<!-- center -->
         <nav class="nav nav-masthead justify-content-center align-items-center">
             <a class="nav-link" href="/" data-path="/">Home</a>
-            <a class="nav-link" href="/Trainers" data-path="/Trainers">Trainers</a>
+            <a class="nav-link" href="/trainers" data-path="/trainers">Trainers</a>
 
             <!-- right side: login/username -->
             <div class="ml-3 d-flex align-items-center">
@@ -38,12 +38,15 @@
                         <!-- roles -->
                         <h6 class="dropdown-header">Role:</h6>
                         
-                        <!-- this will be replaced by a simple USER/TRAINER -->
                         <div class="px-3 pb-2" th:if="${#authentication.authorities != null}">
-                            <span th:each="role, iter : ${#authentication.authorities}"
-                                  th:text="${role.authority}"
-                                  th:append="${iter.last ? '' : ', '}" />
-                        </div>
+						    <span th:text="${#strings.capitalize(
+						                        #strings.toLowerCase(
+						                            #strings.replace(#authentication.authorities.iterator().next().authority, 'ROLE_', '')
+						                        )
+						                    )}">
+						        Role
+						    </span>
+						</div>
 
                         <div class="dropdown-divider"></div>
 
