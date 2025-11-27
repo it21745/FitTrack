@@ -110,6 +110,14 @@ public class SiteUserService implements UserDetailsService {
 		return userRepo.findByUsername(username).get();
 	}
 
+    @Transactional
+    public SiteUser findByUsername(String username) {
+        return userRepo.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+    }
+
+
+
 
 
 	

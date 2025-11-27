@@ -1,24 +1,37 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{page_layout/layout}">
+
 <head>
     <meta charset="UTF-8">
     <title>User Profile</title>
 </head>
+
 <body>
 
-<h1>User Profile</h1>
+<section layout:fragment="main-content" class="container mt-4">
 
-<p><strong>Username:</strong> <span th:text="${user.username}"></span></p>
-<p><strong>Email:</strong> <span th:text="${user.email}"></span></p>
-<p><strong>First Name:</strong> <span th:text="${user.firstName}"></span></p>
-<p><strong>Last Name:</strong> <span th:text="${user.lastName}"></span></p>
-<p><strong>Role:</strong> <span th:text="${user.role}"></span></p>
-<p><strong>Info:</strong> <span th:text="${user.info}"></span></p>
+    <h1>User Profile</h1>
+    <hr>
 
-<a href="/users">Back to list</a>
+    <p><strong>Username:</strong> <span th:text="${user.username}"></span></p>
+    <p><strong>Email:</strong> <span th:text="${user.email}"></span></p>
+    <p><strong>First Name:</strong> <span th:text="${user.firstName}"></span></p>
+    <p><strong>Last Name:</strong> <span th:text="${user.lastName}"></span></p>
 
-<br>
-<a th:href="@{/users/edit/{id}(id=${user.id})}">Edit Profile</a>
+    <p><strong>Roles:</strong>
+        <span th:each="r : ${user.roles}"
+              th:text="${r.name} + ' '"></span>
+    </p>
+
+    <p><strong>Info:</strong> <span th:text="${user.info}"></span></p>
+
+    <br>
+
+    <a class="btn btn-primary" th:href="@{/users/profile/edit}">Edit Profile</a>
+
+</section>
 
 </body>
 </html>

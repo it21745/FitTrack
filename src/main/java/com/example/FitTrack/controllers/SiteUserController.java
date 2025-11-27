@@ -8,6 +8,7 @@ import com.example.FitTrack.service.UserRoleService;
 import jakarta.validation.Valid;
 
 import java.util.List;
+import java.security.Principal;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -69,31 +70,39 @@ public class SiteUserController {
         }
     }
 
-    @GetMapping("/{id}")
-    public String viewUserProfile(@PathVariable Integer id, Model model) {
-        SiteUser user = userService.getUserById(id);
+    @GetMapping("/profile")
+    public String viewMyProfile(Model model, Principal principal) {
+
+        String username = principal.getName();              // παίρνουμε τον logged-in user
+        SiteUser user = userService.findByUsername(username);
+
         model.addAttribute("user", user);
         return "users/userProfile";
     }
 
-    @GetMapping("/edit/{id}")
-    public String showEditForm(@PathVariable Integer id, Model model) {
-        SiteUser user = userService.getUserById(id);
+    @GetMapping("/profile/edit")
+    public String editMyProfile(Model model, Principal principal) {
+
+        String username = principal.getName();
+        SiteUser user = userService.findByUsername(username);
+
         model.addAttribute("user", user);
-
-
-        List<UserRole> roles = roleService.getAllRoles();
-        model.addAttribute("roles", roles);
-
         return "users/editUserProfile";
     }
 
-    @PostMapping("/update")
-    public String updateUser(
-            @ModelAttribute("user") SiteUser user,
-            @RequestParam("roleId") Integer roleId
-    ) {
-        userService.saveUser(user, roleId);
-        return "redirect:/users/" + user.getId();
+    @PostMapping("/profile/update")
+    public String updateMyProfile(@ModelAttribute("user") SiteUser formUser, Principal principal) {
+
+        String username = principal.getName();
+        SiteUser user = userService.findByUsername(username);
+
+        // Μόνο αυτά επιτρέπεται να αλλάξει ο χρήστης
+        user.setFirstName(formUser.getFirstName());
+        user.setLastName(formUser.getLastName());
+        user.setInfo(formUser.getInfo());
+
+        userService.updateUser(user);
+
+        return "redirect:/users/profile";
     }
 }

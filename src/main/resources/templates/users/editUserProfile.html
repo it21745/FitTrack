@@ -1,55 +1,45 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{page_layout/layout}">
+
 <head>
     <meta charset="UTF-8">
-    <title>Edit User</title>
+    <title>Edit Profile</title>
 </head>
+
 <body>
-<h1>Edit Profile</h1>
 
-<form th:action="@{/users/update}" th:object="${user}" method="post">
+<section layout:fragment="main-content" class="container mt-4">
 
-    <input type="hidden" th:field="*{id}"/>
+    <h1>Edit Profile</h1>
+    <hr>
 
-    <label>Username:</label>
-    <input type="text" th:field="*{username}" required>
-    <br>
+    <form th:action="@{/users/profile/update}" th:object="${user}" method="post">
 
-    <label>Email:</label>
-    <input type="email" th:field="*{email}" required>
-    <br>
+        <div class="form-group">
+            <label>First Name:</label>
+            <input type="text" th:field="*{firstName}" class="form-control" required>
+        </div>
 
-    <label>Password:</label>
-    <input type="password" th:field="*{password}">
-    <br>
+        <div class="form-group mt-3">
+            <label>Last Name:</label>
+            <input type="text" th:field="*{lastName}" class="form-control" required>
+        </div>
 
-    <label>First Name:</label>
-    <input type="text" th:field="*{firstName}" required>
-    <br>
+        <div class="form-group mt-3">
+            <label>Info:</label>
+            <textarea th:field="*{info}" class="form-control" rows="3"></textarea>
+        </div>
 
-    <label>Last Name:</label>
-    <input type="text" th:field="*{lastName}" required>
-    <br>
+        <br>
 
-    <label>Info:</label>
-    <textarea th:field="*{info}"></textarea>
-    <br>
+        <button type="submit" class="btn btn-success">Save Changes</button>
+        <a class="btn btn-secondary" th:href="@{/users/profile}">Cancel</a>
 
-    <label>Role:</label>
-    <select name="roleId">
-        <option th:each="r : ${roles}"
-                th:value="${r.id}"
-                th:text="${r.name}">
-        </option>
-    </select>
-    <br><br>
+    </form>
 
-    <button type="submit">Save Changes</button>
-</form>
-
-<br>
-<a th:href="@{/users/{id}(id=${user.id})}">Back to profile</a>
-<a th:href="@{/users/edit/{id}(id=${user.id})}">Edit Profile</a>
+</section>
 
 </body>
 </html>
