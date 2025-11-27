@@ -41,7 +41,7 @@
     <script src="/js/event-calendar.min.js"></script>
     <script th:inline="javascript">
         setTimeout(function() {
-            var backendEvents = [];
+        	var backendEvents = /*[[${eventList}]]*/ [];
             
             // μετατροπη σε μορφη ημερολογιου
             var calendarEvents = backendEvents.map(function(event) {
