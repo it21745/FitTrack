@@ -7,6 +7,7 @@ import com.example.FitTrack.enums.AppointmentStatus;
 import jakarta.persistence.*;
 
 @Entity
+@Table(name="appointments")
 public class Appointment {
 
 	@Id

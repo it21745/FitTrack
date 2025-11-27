@@ -1,14 +1,24 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{page_layout/layout}">
+
 <head>
-    <meta charset="UTF-8">
-    <title>Create User</title>
+<meta charset="UTF-8">
+<title>Register</title>
 </head>
 <body>
+	<div layout:fragment="main-content">
 
-<h1>Create User</h1>
+		<div th:if="${param.error}">
+	        Invalid username and password.
+	    </div>
+		
+		<h1>Register User</h1>
 
 <form th:action="@{/users/save}" th:object="${user}" method="post">
+
+	
 
     <label>Username:</label>
     <input type="text" th:field="*{username}" required>
@@ -19,7 +29,7 @@
     <br>
 
     <label>Password:</label>
-    <input type="password" th:field="*{passwordHash}" required>
+    <input type="password" th:field="*{password}" required>
     <br>
 
     <label>First Name:</label>
@@ -30,14 +40,12 @@
     <input type="text" th:field="*{lastName}" required>
     <br>
 
-    <label>Info:</label>
-    <textarea th:field="*{info}"></textarea>
-    <br>
-
     <label>Role:</label>
-    <select th:field="*{role}">
-        <option th:each="r : ${roles}" th:value="${r}" th:text="${r}"></option>
-    </select>
+    <select name="roleId" required>
+  <option th:each="r : ${roles}"
+          th:value="${r.id}"
+          th:text="${r.name}"></option>
+</select>
     <br><br>
 
     <button type="submit">Save</button>
@@ -45,5 +53,6 @@
 
 <a th:href="@{/users}">Back to list</a>
 
+	</div>
 </body>
 </html>

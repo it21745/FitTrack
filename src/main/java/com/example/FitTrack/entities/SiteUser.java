@@ -1,12 +1,15 @@
 package com.example.FitTrack.entities;
 
 import java.util.List;
-
-import com.example.FitTrack.enums.UserRole;
+import java.util.Set;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 @Entity
+@Table(	name = "site_users")
 public class SiteUser {
 
 	@Id
@@ -15,27 +18,36 @@ public class SiteUser {
 	private int id;
 	
 	@Column(nullable = false, unique = true, length = 50)
+	@NotBlank(message = "Username cannot be blank")
+	@Size(min = 3, max = 50, message = "Username cannot be under 3 or over 50 characters")
 	private String username;
 	
 	@Column(nullable = false, unique = true, length = 50)
+	@NotBlank(message = "Email cannot be blank")
+	@Email
 	private String email;
 	
-	@Column(nullable = false)
-	private String passwordHash;
+	@Column(nullable = false, length = 255)
+	@NotBlank(message = "Password cannot be blank")
+	private String password;
 	
 	@Column(nullable = false)
+	@NotBlank(message = "Name cannot be blank")
 	private String firstName;
 	
 	@Column(nullable = false)
+	@NotBlank(message = "Surname cannot be blank")
 	private String lastName;
 	
 	@Lob
 	@Column
 	private String info;
 	
-	@Enumerated(EnumType.STRING)
-	@Column(nullable = false)
-	private UserRole role;
+	@ManyToMany(fetch = FetchType.LAZY)
+	@JoinTable(	name = "user_roles",
+    	joinColumns = @JoinColumn(name = "user_id"),
+    	inverseJoinColumns = @JoinColumn(name = "role_id"))
+	private Set<UserRole> roles;
 	
 	//orphanRemoval = true, δηλαδη αν διαγραψουμε τον trainer θα διαγραφουν τα availabilities του
 	@OneToMany(mappedBy = "myTrainer", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
@@ -50,24 +62,24 @@ public class SiteUser {
 	
     
     //constructors
-    public SiteUser(String username, String email, String passwordHash, String firstName, String lastName, String info,
-			UserRole role, List<Availability> myAvailabilities, List<Appointment> appointmentsAsTrainer,
-			List<Appointment> appointmentsAsTrainee) {
-		this.username = username;
-		this.email = email;
-		this.passwordHash = passwordHash;
-		this.firstName = firstName;
-		this.lastName = lastName;
-		this.info = info;
-		this.role = role;
-		this.myAvailabilities = myAvailabilities;
-		this.appointmentsAsTrainer = appointmentsAsTrainer;
-		this.appointmentsAsTrainee = appointmentsAsTrainee;
-	}
+    
     
     public SiteUser() {}
 
-    //getters and setters
+    public SiteUser(
+			@NotBlank(message = "Username cannot be blank") @Size(min = 3, max = 50, message = "Username cannot be under 3 or over 50 characters") String username,
+			@NotBlank(message = "Email cannot be blank") @Email String email,
+			@NotBlank(message = "Password cannot be blank") @Size(min = 3, max = 50, message = "Password cannot be under 3 or over 50 characters") String password,
+			@NotBlank(message = "Name cannot be blank") String firstName,
+			@NotBlank(message = "Surname cannot be blank") String lastName) {
+		this.username = username;
+		this.email = email;
+		this.password = password;
+		this.firstName = firstName;
+		this.lastName = lastName;
+	}
+
+	//getters and setters
 	public int getId() {
 		return id;
 	}
@@ -92,12 +104,12 @@ public class SiteUser {
 		this.email = email;
 	}
 
-	public String getPasswordHash() {
-		return passwordHash;
+	public String getPassword() {
+		return password;
 	}
 
-	public void setPasswordHash(String passwordHash) {
-		this.passwordHash = passwordHash;
+	public void setPassword(String password) {
+		this.password = password;
 	}
 
 	public String getFirstName() {
@@ -124,12 +136,12 @@ public class SiteUser {
 		this.info = info;
 	}
 
-	public UserRole getRole() {
-		return role;
+	public Set<UserRole> getRoles() {
+		return roles;
 	}
 
-	public void setRole(UserRole role) {
-		this.role = role;
+	public void setRoles(Set<UserRole> roles) {
+		this.roles = roles;
 	}
 
 	public List<Availability> getMyAvailabilities() {
