@@ -20,7 +20,7 @@
     <br>
 
     <label>Password:</label>
-    <input type="password" th:field="*{passwordHash}">
+    <input type="password" th:field="*{password}">
     <br>
 
     <label>First Name:</label>
@@ -36,8 +36,11 @@
     <br>
 
     <label>Role:</label>
-    <select th:field="*{role}">
-        <option th:each="r : ${roles}" th:value="${r}" th:text="${r}"></option>
+    <select name="roleId">
+        <option th:each="r : ${roles}"
+                th:value="${r.id}"
+                th:text="${r.name}">
+        </option>
     </select>
     <br><br>
 

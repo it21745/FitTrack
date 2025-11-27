@@ -80,13 +80,20 @@ public class SiteUserController {
     public String showEditForm(@PathVariable Integer id, Model model) {
         SiteUser user = userService.getUserById(id);
         model.addAttribute("user", user);
-        model.addAttribute("roles", UserRole.values());
+
+
+        List<UserRole> roles = roleService.getAllRoles();
+        model.addAttribute("roles", roles);
+
         return "users/editUserProfile";
     }
 
     @PostMapping("/update")
-    public String updateUser(@ModelAttribute("user") SiteUser user) {
-        userService.saveUser(user);
+    public String updateUser(
+            @ModelAttribute("user") SiteUser user,
+            @RequestParam("roleId") Integer roleId
+    ) {
+        userService.saveUser(user, roleId);
         return "redirect:/users/" + user.getId();
     }
 }
