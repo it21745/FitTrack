@@ -8,6 +8,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+
 @Controller
 @RequestMapping("/users")
 public class SiteUserController {
@@ -35,5 +36,26 @@ public class SiteUserController {
     public String saveUser(@ModelAttribute("user") SiteUser user) {
         userService.saveUser(user);
         return "redirect:/users";
+    }
+
+    @GetMapping("/{id}")
+    public String viewUserProfile(@PathVariable Integer id, Model model) {
+        SiteUser user = userService.getUserById(id);
+        model.addAttribute("user", user);
+        return "users/userProfile";
+    }
+
+    @GetMapping("/edit/{id}")
+    public String showEditForm(@PathVariable Integer id, Model model) {
+        SiteUser user = userService.getUserById(id);
+        model.addAttribute("user", user);
+        model.addAttribute("roles", UserRole.values());
+        return "users/editUserProfile";
+    }
+
+    @PostMapping("/update")
+    public String updateUser(@ModelAttribute("user") SiteUser user) {
+        userService.saveUser(user);
+        return "redirect:/users/" + user.getId();
     }
 }
