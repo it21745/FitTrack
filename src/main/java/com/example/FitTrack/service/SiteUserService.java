@@ -59,7 +59,6 @@ public class SiteUserService implements UserDetailsService {
 	
     @Transactional
     public Integer saveUser(SiteUser user, Integer roleId) {
-        System.out.println("I am in the user");
     	String passwd= user.getPassword();
         String encodedPassword = passwordEncoder.encode(passwd);
         user.setPassword(encodedPassword);
@@ -79,7 +78,6 @@ public class SiteUserService implements UserDetailsService {
         user.setRoles(roles);
 
         user = userRepo.save(user);
-        System.out.println("i reached here");
         return user.getId();
     }
 
