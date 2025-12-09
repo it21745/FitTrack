@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{page_layout/layout}">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Request Appointment</title>
+</head>
+<body>
+<div layout:fragment="main-content">
+
+	<!-- If user is under the active appointment limit and is allowed to request an appointment -->
+	<div th:if="${availableCheck}">
+	  <p>
+	    You're about to request an appointment with
+	    <strong th:text="${trainerName}">Trainer Name</strong>.
+	  </p>
+	
+	  <p>
+	    You've chosen
+	    <span th:text="${startTime}"></span> –
+	    <span th:text="${endTime}"></span>
+	    on
+	    <span th:text="${date}"></span>.
+	  </p>
+	  
+	  <p>The weather on that day is predicted to be [ADD THIS LATER]</p>
+	
+	  <p>
+	    When you're ready, click the button below to send your request.
+	    The trainer will either confirm it or decline it.
+	  </p>
+	</div>
+	
+	<!-- If user is NOT under the active appointment limit -->
+	<p th:if="${!availableCheck}"
+	   th:text="${failReason}">
+	</p>
+
+
+  <!-- form that posts to the same URL (method POST); include CSRF if you use Spring Security -->
+  <form  method="post">
+    <!-- If using Spring Security, uncomment the next line to include the CSRF token -->
+    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+    <!-- Single button form; disabled if check fails -->
+    <button type="submit"
+            th:disabled="${!availableCheck}"
+            th:text="${availableCheck} ? 'Request Appointment' : 'Request not allowed'">
+      Request Appointment
+    </button>
+  </form>
+
+</div>
+</body>
+</html>

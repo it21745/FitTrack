@@ -1,6 +1,7 @@
 package com.example.FitTrack.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
@@ -23,6 +24,11 @@ public class AvailabilityService {
 	@Transactional
 	public List<Availability> getAllAvailabilities(){
 		return repo.findAll();
+	}
+	
+	@Transactional
+	public Optional<Availability> getAvailById(int id){
+		return repo.findById(id);
 	}
 	
 	

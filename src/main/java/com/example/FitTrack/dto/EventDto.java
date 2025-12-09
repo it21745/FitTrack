@@ -6,14 +6,16 @@ public class EventDto {
 	private String end;
 	private String color;
 	private String type;
+	private int instanceIndex;
 	
 	
-	public EventDto(int id, String start, String end, String color, String type) {
+	public EventDto(int id, String start, String end, String color, String type, int instanceIndex) {
 		this.id = id;
 		this.start = start;
 		this.end = end;
 		this.color = color;
 		this.type = type;
+		this.instanceIndex = instanceIndex;
 	}
 
 
@@ -64,6 +66,16 @@ public class EventDto {
 
 	public void setType(String type) {
 		this.type = type;
+	}
+
+
+	public int getInstanceIndex() {
+		return instanceIndex;
+	}
+
+
+	public void setInstanceIndex(int instanceIndex) {
+		this.instanceIndex = instanceIndex;
 	}
 	
 	

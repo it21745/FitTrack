@@ -1,3 +1,3 @@
 package com.example.FitTrack.enums;
 
-public enum AppointmentStatus {Requested, Accepted, Completed, Canceled}
+public enum AppointmentStatus {Requested, Accepted, Rejected, Completed, Canceled}
