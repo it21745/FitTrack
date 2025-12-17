@@ -5,14 +5,19 @@ import com.example.FitTrack.entities.UserRole;
 import com.example.FitTrack.service.SiteUserService;
 import com.example.FitTrack.service.UserRoleService;
 
+import com.example.FitTrack.dto.FitnessProfile;
+import com.example.FitTrack.util.JsonUtils;
+
 import jakarta.validation.Valid;
 
 import java.util.List;
+import java.security.Principal;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+
 
 @Controller
 @RequestMapping("/users")
@@ -66,5 +71,57 @@ public class SiteUserController {
         	userService.saveUser(user, roleId);
         	return "redirect:/";
         }
+    }
+
+    @GetMapping("/profile")
+    public String viewMyProfile(Model model, Principal principal) {
+
+        String username = principal.getName();
+        SiteUser user = userService.findByUsername(username);
+
+        // Μετατροπή JSON -> FitnessProfile
+        FitnessProfile fp = JsonUtils.fromJson(user.getFitnessProfileJson());
+
+        model.addAttribute("user", user);
+        model.addAttribute("fitnessProfile", fp);
+
+        return "users/userProfile";
+    }
+
+    @GetMapping("/profile/edit")
+    public String editMyProfile(Model model, Principal principal) {
+
+        String username = principal.getName();
+        SiteUser user = userService.findByUsername(username);
+
+        // Μετατροπή JSON -> FitnessProfile object
+        FitnessProfile fp = JsonUtils.fromJson(user.getFitnessProfileJson());
+
+        model.addAttribute("user", user);
+        model.addAttribute("fitnessProfile", fp);
+
+        return "users/editUserProfile";
+    }
+
+    @PostMapping("/profile/update")
+    public String updateMyProfile(
+            @ModelAttribute("user") SiteUser formUser,
+            @ModelAttribute("fitnessProfile") FitnessProfile fp,
+            Principal principal) {
+
+        String username = principal.getName();
+        SiteUser user = userService.findByUsername(username);
+
+        // Basic info
+        user.setFirstName(formUser.getFirstName());
+        user.setLastName(formUser.getLastName());
+        user.setInfo(formUser.getInfo());
+
+        // Save JSON
+        user.setFitnessProfileJson(JsonUtils.toJson(fp));
+
+        userService.updateUser(user);
+
+        return "redirect:/users/profile";
     }
 }

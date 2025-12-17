@@ -22,6 +22,7 @@
         <th>Username</th>
         <th>Email</th>
         <th>Role</th>
+        <th>Actions</th>
     </tr>
     </thead>
 
@@ -31,6 +32,9 @@
         <td th:text="${u.username}"></td>
         <td th:text="${u.email}"></td>
         <td th:text="${u.role}"></td>
+        <td>
+            <a th:href="@{|/users/${u.id}|}">View</a>
+        </td>
     </tr>
     </tbody>
 </table>
