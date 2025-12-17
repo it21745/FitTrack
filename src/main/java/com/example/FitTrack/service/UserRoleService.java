@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import com.example.FitTrack.entities.UserRole;
 import com.example.FitTrack.repository.UserRoleRepository;
 
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UserRoleService{

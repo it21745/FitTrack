@@ -1,0 +1,13 @@
+<form th:fragment="actionForm(actionValue, label, cssClass)"
+	th:action="@{/appointments/{id}/update(id=${appointment.id})}"
+      method="post" style="display:inline-flex; gap:10px;">
+    <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
+
+    <button type="submit"
+            name="action"
+            th:value="${actionValue}"
+            th:text="${label}"
+            class="primary"
+            th:classappend="${cssClass}">
+    </button>
+</form>

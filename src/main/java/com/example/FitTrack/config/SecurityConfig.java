@@ -40,7 +40,7 @@ public class SecurityConfig {
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http.authorizeHttpRequests((requests) -> requests
 				//pages that anyone can access
-				.requestMatchers("/", "/trainers", "/users/register", "/trainers/availabilities/view/**", "/users/save", "/images/**", "/js/**", "/css/**").permitAll()
+				.requestMatchers("/", "/trainers", "/users/register", "/calendar/trainer/view/**", "/users/save", "/images/**", "/js/**", "/css/**").permitAll()
 				.anyRequest().authenticated()
 			)
 			.formLogin((form) -> form

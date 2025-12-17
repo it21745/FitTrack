@@ -17,7 +17,7 @@
         <nav class="nav nav-masthead justify-content-center align-items-center">
             <a class="nav-link" href="/" data-path="/">Home</a>
             <a class="nav-link" href="/trainers" data-path="/trainers">Trainers</a>
-            <a class="nav-link" sec:authorize="hasRole('ROLE_TRAINER')" href="/trainers/calendar">My Calendar</a>
+            <a class="nav-link" sec:authorize="isAuthenticated()" href="/calendar">My Calendar</a>
 
             
 

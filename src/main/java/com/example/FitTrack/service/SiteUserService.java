@@ -18,7 +18,7 @@ import com.example.FitTrack.repository.AppointmentRepository;
 import com.example.FitTrack.repository.SiteUserRepository;
 import com.example.FitTrack.repository.UserRoleRepository;
 
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.FitTrack.entities.Appointment;
 import com.example.FitTrack.entities.SiteUser;

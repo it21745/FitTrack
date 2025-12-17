@@ -10,7 +10,17 @@
 </head>
 <body>
 <div layout:fragment="main-content">
-	<h1>Temporary error page</h1>
+	<h1>Something went wrong</h1>
+	
+	<!-- specific error if we have one -->
+	<p th:if="${errorReason != null and !#strings.isEmpty(errorReason)}"
+	   th:text="${errorReason}">
+	</p>
+
+	<!-- generic error if we don't -->
+	<p th:unless="${errorReason != null and !#strings.isEmpty(errorReason)}">
+		An error occurred
+	</p>
 	
 </div>
 </body>

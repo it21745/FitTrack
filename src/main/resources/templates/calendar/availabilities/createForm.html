@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{page_layout/layout}">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Create Availability</title>
+</head>
+
+<body>
+<div layout:fragment="main-content"
+     style="max-width: 600px; margin: 0 auto; color: white;">
+
+    <h2 style="margin-bottom: 20px;">Add New Availability</h2>
+
+	<form th:action="@{/availabilities/create}"
+          th:object="${availForm}"
+          method="post">
+
+    <!-- error -->
+    <div th:if="${#fields.hasErrors('*')}"
+         style="background: #842029; padding: 10px; border-radius: 5px; margin-bottom: 15px;">
+        <p style="margin: 0; font-weight: bold;">Please fix the errors below.</p>
+    </div>
+
+    
+
+        <!-- oneTime or recurring -->
+        <div style="margin-bottom: 15px;">
+            <label>
+                <input type="radio" th:field="*{oneTime}" value="true" onclick="toggleType()"> One-time
+            </label>
+            &nbsp;&nbsp;
+            <label>
+                <input type="radio" th:field="*{oneTime}" value="false" onclick="toggleType()"> Recurring
+            </label>
+        </div>
+
+        <!-- oneTime fields -->
+        <div id="oneTimeFields" style="display:none;">
+
+            <div style="margin-bottom: 15px;">
+                <label>Date</label><br>
+                <input type="date" th:field="*{date}">
+                <div th:errors="*{date}" style="color: #ff6b6b;"></div>
+            </div>
+
+        </div>
+
+        <!-- recurring fields -->
+        <div id="recurringFields" style="display:none;">
+
+            <div style="margin-bottom: 15px;">
+                <label>Day of week</label><br>
+                <select th:field="*{day}">
+                    <option value="">-- Select --</option>
+                    <option th:each="d : ${T(java.time.DayOfWeek).values()}"
+                            th:value="${d}"
+                            th:text="${d}">
+                    </option>
+                </select>
+                <div th:errors="*{day}" style="color: #ff6b6b;"></div>
+            </div>
+
+        </div>
+
+        <!-- common fields -->
+        <div style="margin-bottom: 15px;">
+            <label>Start time</label><br>
+            <input type="time" th:field="*{startTime}">
+            <div th:errors="*{startTime}" style="color: #ff6b6b;"></div>
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <label>Duration (minutes)</label><br>
+            <input type="number" th:field="*{durationMinutes}" min="15" step="15">
+            <div th:errors="*{durationMinutes}" style="color: #ff6b6b;"></div>
+        </div>
+
+        <button type="submit"
+                style="
+                    background-color: #28a745;
+                    color: white;
+                    padding: 10px 16px;
+                    border: none;
+                    border-radius: 5px;
+                    font-weight: bold;
+                    cursor: pointer;
+                ">
+            Save Availability
+        </button>
+
+        <a href="/calendar"
+           style="margin-left: 10px; color: #ccc; text-decoration: underline;">
+            Cancel
+        </a>
+
+    </form>
+
+    <!-- JS toggle thing -->
+    <script>
+        function toggleType() {
+            const oneTime = document.querySelector('input[name="oneTime"]:checked')?.value === 'true';
+            document.getElementById('oneTimeFields').style.display = oneTime ? 'block' : 'none';
+            document.getElementById('recurringFields').style.display = oneTime ? 'none' : 'block';
+        }
+
+        // Initialize on page load (important on validation errors)
+        toggleType();
+    </script>
+
+</div>
+</body>
+</html>

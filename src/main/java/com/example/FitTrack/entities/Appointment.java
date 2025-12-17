@@ -33,8 +33,7 @@ public class Appointment {
 	@Column(nullable = false)
 	private AppointmentStatus status;
 	
-	@Lob
-	@Column
+	@Column(columnDefinition = "TEXT")
 	private String log;
 
 	

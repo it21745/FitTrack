@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{page_layout/layout}">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Appointment Log</title>
+</head>
+
+<body>
+<div layout:fragment="main-content">
+
+    <h2>Edit Appointment Log</h2>
+
+	<form th:action="@{''}" method="post">
+	
+	    <input type="hidden"
+	           th:name="${_csrf.parameterName}"
+	           th:value="${_csrf.token}" />
+	
+	    <div>
+	        <label for="log">Log</label><br>
+	
+	        <textarea id="log"
+	                  name="text"
+	                  rows="10"
+	                  cols="80"
+	                  th:text="${text}">
+	        </textarea>
+	    </div>
+	
+	    <br>
+	
+	    <button type="submit">Save</button>
+	
+	    <a th:href="@{/appointments/{id}/view(id=${appId})}">
+	        <button type="button">Cancel</button>
+	    </a>
+	
+	</form>
+
+
+</div>
+</body>
+</html>

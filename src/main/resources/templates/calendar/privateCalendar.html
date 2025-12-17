@@ -2,6 +2,7 @@
 <html lang="en"
       xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity6"
       layout:decorate="~{page_layout/layout}">
 <head>
   <meta charset="UTF-8">
@@ -34,7 +35,23 @@
     </style>
     
     <div style="text-align: left; max-width: 1200px; margin: 0 auto; min-height: 800px;">
-        <h2 style="margin-bottom: 20px; color: white;">Event Calendar</h2>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+		    <h2 style="color: white; margin: 0;">Event Calendar</h2>
+		
+		    <a sec:authorize="hasRole('ROLE_TRAINER')"
+		       href="/availabilities/create"
+		       style="
+		           background-color: #28a745;
+		           color: white;
+		           padding: 8px 14px;
+		           border-radius: 5px;
+		           text-decoration: none;
+		           font-weight: bold;
+		       ">
+		        + Add New Availability
+		    </a>
+		</div>
+
         <div id="ec" style="height: 700px; background: #474646; padding: 15px; border-radius: 8px;"></div>
     </div>
     
@@ -85,9 +102,9 @@
 				    
 				    // διαφορετικη συμπεριφορα αναλογα με τον τυπο event
 				    if (eventType === 'appointment') {
-				        window.location.href = '/appointments/' + encodeURIComponent(eid) + '/edit';
+				        window.location.href = '/appointments/' + encodeURIComponent(eid) + '/view';
 				    } else if (eventType === 'availability_onetime' || eventType === 'availability_recurring') {
-				        window.location.href = '/availabilities/' + encodeURIComponent(eid) + '/edit';
+				        window.location.href = '/availabilities/' + encodeURIComponent(eid) + '/view';
 				    }
 				},
                 eventDidMount: function(info) {

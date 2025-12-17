@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{page_layout/layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>Appointment</title>
+
+    <style>
+        .appointment-card {
+            max-width: 700px;
+            margin: 60px auto;
+            background: #c1cad6;
+            color: #212529;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+        }
+
+        .appointment-card h1 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: #343a40;
+        }
+
+        .appointment-card .row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 12px;
+        }
+
+        .appointment-card .col {
+            flex: 1;
+        }
+
+        .appointment-card .label {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .appointment-card .value {
+            color: #212529;
+        }
+
+        .appointment-card .primary {
+            background: #0d6efd;
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .appointment-card .inline-actions {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .appointment-card .small-note {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-top: 10px;
+        }
+
+        .appointment-card .badge-status {
+            display: inline-block;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            background: #eef2ff;
+            color: #0f172a;
+        }
+
+        .appointment-card .log-box {
+            background: #e9ecef;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+<div layout:fragment="main-content">
+
+    <div class="appointment-card">
+        <h1>Appointment</h1>
+
+        <!-- Status badge -->
+        <div style="margin-bottom: 12px;">
+            <span class="badge-status"
+                  th:text="${appointment.status}">
+                CONFIRMED
+            </span>
+        </div>
+
+        <!-- Participants -->
+        <div class="row">
+            <div class="col">
+                <span class="label">Trainer</span>
+                <div class="value"
+                     th:text="${trainerName}">
+                    trainerUsername
+                </div>
+            </div>
+
+            <div class="col">
+                <span class="label">Trainee</span>
+                <div class="value"
+                     th:text="${traineeName}">
+                    traineeUsername
+                </div>
+            </div>
+        </div>
+
+        <!-- Time -->
+        <div class="row">
+            <div class="col">
+                <span class="label">Start Time</span>
+                <div class="value"
+                     th:text="${#temporals.format(appointment.startTime, 'dd MMM yyyy HH:mm')}">
+                    01 Jan 2025 09:00
+                </div>
+            </div>
+
+            <div class="col">
+                <span class="label">End Time</span>
+                <div class="value"
+                     th:text="${#temporals.format(appointment.endTime, 'dd MMM yyyy HH:mm')}">
+                    01 Jan 2025 10:00
+                </div>
+            </div>
+        </div>
+
+        <!-- Log -->
+        <div style="margin-top: 15px;">
+            <span class="label">Session Log / Notes</span>
+            <div class="log-box"
+                 th:text="${appointment.log != null ? appointment.log : 'No notes available.'}">
+                No notes available.
+            </div>
+        </div>
+
+        <!-- Actions -->
+		
+		<!-- Trainer actions -->
+		<div class="inline-actions" sec:authorize="hasRole('TRAINER')">
+		
+		    <!-- if (Requested): confirm or reject -->
+		    <div th:if="${appointment.status == AppointmentStatus.Requested}">
+		        <div th:replace="calendar/appointments/fragments/appointmentActionFragment :: actionForm(
+		                'confirm', 'Confirm', '')"></div>
+		
+		        <div th:replace="calendar/appointments/fragments/appointmentActionFragment :: actionForm(
+		                'reject', 'Reject', 'danger')"></div>
+		    </div>
+		
+		    <!-- if (Confirmed): cancel -->
+		    <div th:if="${appointment.status == AppointmentStatus.Accepted}">
+		        <div th:replace="calendar/appointments/fragments/appointmentActionFragment :: actionForm(
+		                'cancel', 'Cancel', 'danger')"></div>
+		    </div>
+		
+		    <!-- if (Completed): add info -->
+		    <div th:if="${appointment.status == AppointmentStatus.Completed}">
+		        <a th:href="@{/appointments/{id}/edit(id=${appointment.id})}"
+		           class="primary">
+		            Add info
+		        </a>
+		    </div>
+		
+		
+		</div>
+		
+		<!-- Trainee actions -->
+		<div class="inline-actions" sec:authorize="hasRole('TRAINEE')">
+		
+		    <!-- if (Requested or Confirmed): cancel -->
+		    <div th:if="${appointment.status == AppointmentStatus.Requested
+		                 or appointment.status == AppointmentStatus.Accepted}">
+		        <div th:replace="calendar/appointments/fragments/appointmentActionFragment :: actionForm(
+		                'cancel', 'Cancel', 'danger')"></div>
+		    </div>
+		
+		</div>
+		
+		<!-- Back to calendar button -->
+		<div class="inline-actions">
+		    <!-- buttons -->
+		    <a th:href="@{/calendar}"
+		       style="margin-left:auto; text-decoration:none; color:#0d6efd;">
+		        Back to calendar
+		    </a>
+		</div>
+
+
+
+		        
+        
+        
+        
+        
+        
+
+</div>
+</body>
+</html>
