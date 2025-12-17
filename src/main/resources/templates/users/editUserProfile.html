@@ -34,6 +34,35 @@
 
         <br>
 
+        <h3>Fitness Profile</h3>
+        <hr>
+
+        <!-- GOAL -->
+        <div class="form-group mt-3">
+            <label>Goal:</label>
+            <select class="form-control" th:field="${fitnessProfile.goal}">
+                <option value="weight_loss">Weight Loss</option>
+                <option value="muscle_gain">Muscle Gain</option>
+                <option value="endurance">Endurance</option>
+                <option value="flexibility">Flexibility</option>
+            </select>
+        </div>
+
+        <!-- HEIGHT -->
+        <div class="form-group mt-3">
+            <label>Height (cm):</label>
+            <input type="number" class="form-control" th:field="${fitnessProfile.height}">
+        </div>
+
+        <!-- WEIGHT -->
+        <div class="form-group mt-3">
+            <label>Weight (kg):</label>
+            <input type="number" step="0.1" class="form-control" th:field="${fitnessProfile.weight}">
+        </div>
+
+        <br>
+
+
         <button type="submit" class="btn btn-success">Save Changes</button>
         <a class="btn btn-secondary" th:href="@{/users/profile}">Cancel</a>
 
