@@ -41,6 +41,11 @@ public class SiteUser {
 
 	@Column(columnDefinition = "TEXT")
 	private String info;
+
+    // JSON string με στοιχεία fitness profile (στόχοι, ύψος, βάρος κτλ.)
+    @Lob
+    @Column
+    private String fitnessProfileJson;
 	
 	@ManyToMany(fetch = FetchType.LAZY)
 	@JoinTable(	name = "user_roles",
@@ -134,6 +139,14 @@ public class SiteUser {
 	public void setInfo(String info) {
 		this.info = info;
 	}
+
+    public String getFitnessProfileJson() {
+        return fitnessProfileJson;
+    }
+
+    public void setFitnessProfileJson(String fitnessProfileJson) {
+        this.fitnessProfileJson = fitnessProfileJson;
+    }
 
 	public Set<UserRole> getRoles() {
 		return roles;

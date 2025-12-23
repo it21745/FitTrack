@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{page_layout/layout}">
+
+<head>
+    <meta charset="UTF-8">
+    <title>User Profile</title>
+</head>
+
+<body>
+
+<section layout:fragment="main-content" class="container mt-4">
+
+    <h1>User Profile</h1>
+    <hr>
+
+    <p><strong>Username:</strong> <span th:text="${user.username}"></span></p>
+    <p><strong>Email:</strong> <span th:text="${user.email}"></span></p>
+    <p><strong>First Name:</strong> <span th:text="${user.firstName}"></span></p>
+    <p><strong>Last Name:</strong> <span th:text="${user.lastName}"></span></p>
+
+    <p><strong>Roles:</strong>
+        <span th:each="r : ${user.roles}"
+              th:text="${r.name} + ' '"></span>
+    </p>
+
+    <p><strong>Info:</strong> <span th:text="${user.info}"></span></p>
+
+    <br>
+
+    <h3>Fitness Profile</h3>
+    <hr>
+
+    <p><strong>Goal:</strong>
+        <span th:text="${fitnessProfile.goal}"></span>
+    </p>
+
+    <p><strong>Height:</strong>
+        <span th:text="${fitnessProfile.height}"></span> cm
+    </p>
+
+    <p><strong>Weight:</strong>
+        <span th:text="${fitnessProfile.weight}"></span> kg
+    </p>
+
+    <a class="btn btn-primary" th:href="@{/users/profile/edit}">Edit Profile</a>
+
+</section>
+
+</body>
+</html>
