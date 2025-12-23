@@ -98,6 +98,7 @@ public class AppointmentController {
 				case "confirm":
 					if (app.getStatus().equals(AppointmentStatus.Requested)) {
 						app.setStatus(AppointmentStatus.Accepted);
+						//when a trainer confirms an appointment it should also automaticaly reject other appointments on this availability
 					}else {
 						model.addAttribute("errorReason","Invalid form input");
 						return "/error";

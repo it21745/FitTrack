@@ -155,16 +155,16 @@
 		
 		    <!-- if (Requested): confirm or reject -->
 		    <div th:if="${appointment.status == AppointmentStatus.Requested}">
-		        <div th:replace="calendar/appointments/fragments/appointmentActionFragment :: actionForm(
+		        <div th:replace="calendar/appointments/appointmentActionFragment :: actionForm(
 		                'confirm', 'Confirm', '')"></div>
 		
-		        <div th:replace="calendar/appointments/fragments/appointmentActionFragment :: actionForm(
+		        <div th:replace="calendar/appointments/appointmentActionFragment :: actionForm(
 		                'reject', 'Reject', 'danger')"></div>
 		    </div>
 		
 		    <!-- if (Confirmed): cancel -->
 		    <div th:if="${appointment.status == AppointmentStatus.Accepted}">
-		        <div th:replace="calendar/appointments/fragments/appointmentActionFragment :: actionForm(
+		        <div th:replace="calendar/appointments/appointmentActionFragment :: actionForm(
 		                'cancel', 'Cancel', 'danger')"></div>
 		    </div>
 		
@@ -185,7 +185,7 @@
 		    <!-- if (Requested or Confirmed): cancel -->
 		    <div th:if="${appointment.status == AppointmentStatus.Requested
 		                 or appointment.status == AppointmentStatus.Accepted}">
-		        <div th:replace="calendar/appointments/fragments/appointmentActionFragment :: actionForm(
+		        <div th:replace="calendar/appointments/appointmentActionFragment :: actionForm(
 		                'cancel', 'Cancel', 'danger')"></div>
 		    </div>
 		
