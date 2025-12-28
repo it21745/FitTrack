@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{page_layout/layout}">
+
+<head>
+  <meta charset="UTF-8">
+  <title>MessagePage</title>
+</head>
+<body>
+<div layout:fragment="main-content">
+	<!-- this page is for testing only, just print a simple page and maybe show a message saying something to the user -->
+	
+	
+	<!-- if we have a message just display it -->
+	<p th:if="${msg != null and !#strings.isEmpty(msg)}"
+	   th:text="${msg}">
+	</p>
+
+	<!-- if we don't have a message -->
+	<p th:unless="${msg != null and !#strings.isEmpty(msg)}">
+		No message
+	</p>
+	
+</div>
+</body>
+</html>

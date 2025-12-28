@@ -38,9 +38,8 @@ public class SiteUser {
 	@Column(nullable = false)
 	@NotBlank(message = "Surname cannot be blank")
 	private String lastName;
-	
-	@Lob
-	@Column
+
+	@Column(columnDefinition = "TEXT")
 	private String info;
 
     // JSON string με στοιχεία fitness profile (στόχοι, ύψος, βάρος κτλ.)

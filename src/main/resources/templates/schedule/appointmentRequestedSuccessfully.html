@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{page_layout/layout}">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Appointment Requested</title>
+</head>
+<body>
+<div layout:fragment="main-content">
+
+  <div style="max-width: 700px; margin: 0 auto; text-align: center; padding: 40px;">
+
+    <h2 style="margin-bottom: 25px;">✔️ Appointment Request Submitted</h2>
+
+    <p style="font-size: 18px; line-height: 1.6;">
+      You have successfully requested an appointment with
+      <strong th:text="${trainerName}">Trainer Name</strong>
+      on
+      <strong th:text="${date}">Date</strong>
+      at
+      <strong>
+        <span th:text="${startTime}">Start</span>
+        -
+        <span th:text="${endTime}">End</span>
+      </strong>
+    </p>
+
+    <p style="margin-top: 30px; font-size: 16px;">
+      To view the trainer's reply or cancel your appointment, please visit your
+      <strong>
+        <a th:href="@{/calendar}">Appointment Calendar</a>
+      </strong>.
+    </p>
+
+    <p style="margin-top: 20px;">
+      <a th:href="@{/}" style="font-weight: bold;">Return to Main Page</a>
+    </p>
+
+  </div>
+
+</div>
+</body>
+</html>

@@ -14,7 +14,7 @@ public interface SiteUserRepository extends JpaRepository<SiteUser, Integer> {
 	
 	//apparently this works automatically due to spring magic
 	//it sees the method "findByRoles" and understands what it should do and implements it on its own
-	List<SiteUser> findByRoles(UserRole role);
+	Optional<List<SiteUser>> findByRoles(UserRole role);
 //	SiteUser findByUsername(String username);
 	Optional<SiteUser> findByUsername(String username);
 	Boolean existsByUsername(String username);

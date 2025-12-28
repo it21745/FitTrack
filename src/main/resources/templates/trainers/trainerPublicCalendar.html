@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{page_layout/layout}">
+<head>
+  <meta charset="UTF-8">
+  <title>Calendar</title>
+</head>
+<body>
+<div layout:fragment="main-content">
+    <link rel="stylesheet" href="/css/event-calendar.min.css">
+    
+    <style>
+        /* Το κουμπι today θελει ειδικο styling για να μην δειχνει χαλια */
+        #ec .ec-button.ec-today {
+            background-color: #495057;
+            color: white !important;
+            border-color: #495057;
+        }
+        
+        /* μεγεθος κειμενου των events */
+        #ec .ec-event-title,
+        #ec .ec-event-time,
+        #ec .fc-event-title,
+        #ec .fc-event-time {
+            font-size: 11px !important;
+            line-height: 1.2 !important;
+        }
+        
+        #ec .fc-event, #ec .ec-event {
+            cursor: pointer;
+        }
+        
+    </style>
+    
+    <!-- the following makes availabilities non clickable for trainers (trainers can't request an appointment) -->
+	<style sec:authorize="isAuthenticated() and hasRole('ROLE_TRAINER')">
+	    #ec .fc-event, 
+	    #ec .ec-event {
+	        pointer-events: none !important;
+	        cursor: default !important;
+	        opacity: 0.98;
+	    }
+	
+	    
+	</style>
+	    
+    
+
+    
+    <div style="text-align: left; max-width: 1200px; margin: 0 auto; min-height: 800px;">
+        <h2 style="margin-bottom: 20px; color: white;">
+        Event Calendar of 
+        <a th:href="@{/trainers/profile/view/{name}(name=${trainerName})}"
+        th:text="${trainerName}"
+       	style="color: #4ea1ff; text-decoration: underline;">
+        Trainer Name
+        </a>
+        </h2>
+        <div sec:authorize="isAuthenticated() and hasRole('ROLE_TRAINER')"
+		    style="color: red; font-weight: bold; margin-bottom: 15px; text-align: center;">
+		    As a trainer, you can only view availabilities but cannot request an appointment.
+		    To view and edit your own availabilities you can access them through your drop down menu (or the "My Calendar" button for now)
+		</div>
+		        
+        <div id="ec" style="height: 700px; background: #474646; padding: 15px; border-radius: 8px;"></div>
+    </div>
+    
+    <script src="/js/event-calendar.min.js"></script>
+    <script th:inline="javascript">
+        setTimeout(function() {
+        	var backendEvents = /*[[${eventList}]]*/ [];
+            
+            // μετατροπη σε μορφη ημερολογιου
+            var calendarEvents = backendEvents.map(function(event) {
+                var title = event.type === 'appointment' ? 'Appointment' : 
+                           event.type === 'availability_onetime' ? 'Available (One-time)' :
+                           event.type === 'availability_recurring' ? 'Available (Recurring)' : 'Available';
+                
+                var eventObj = {
+                        id: event.id,
+                        title: title,
+                        start: event.start,
+                        end: event.end,
+                        backgroundColor: event.color,
+                        extendedProps: {
+                            fullTitle: title,
+                            type: event.type
+                        }
+                    };
+                    
+                	//προσθηκη του instanceIndex
+                    if (event.type === 'availability_recurring' && event.instanceIndex !== null) {
+                        eventObj.extendedProps.instanceIndex = event.instanceIndex;
+                    }
+                    
+                    return eventObj;
+            });
+            
+            let ec = EventCalendar.create(document.getElementById('ec'), {
+                view: 'timeGridWeek',
+                headerToolbar: {
+                    start: 'prev,next today',
+                    center: 'title',
+                    end: ''
+                },
+                height: '100%',
+                editable: false,
+                selectable: false,
+                eventStartEditable: false,
+                eventDurationEditable: false,
+                droppable: false,
+                // παιρνουμε τα events απο το backend
+                events: calendarEvents,
+                eventClick: function(info) {
+				    let eid = info.event.id;
+				    let eventType = info.event.extendedProps.type;
+				    
+				    if (!eid || !eventType) return;
+				    
+				    // εδω παταει ο χρηστης availability για να κλεισει πανω του appointment
+				    // θα πηγαινει στο schedule/{availability_id}
+				    // επειδη τα recurring availabilities εχουν πολλαπλα instances, 
+				    //το id τους θα αναπαρισταται με /x/y οπου x={availability_id}, y={instance_id}
+				    if (eventType === 'availability_onetime') {
+				        window.location.href = '/schedule/' + encodeURIComponent(eid);
+				    } else if (eventType === 'availability_recurring') {
+				        // Get instance index from extended properties
+				        let instanceIndex = info.event.extendedProps.instanceIndex;
+				        window.location.href = '/schedule/' + encodeURIComponent(eid) + '/' + instanceIndex;
+				    }
+				},
+                eventDidMount: function(info) {
+                    info.el.setAttribute('title', info.event.title);
+                }
+            });
+        }, 100);
+    </script>
+</div>
+</body>
+</html>

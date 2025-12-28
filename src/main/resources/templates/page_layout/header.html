@@ -17,6 +17,9 @@
         <nav class="nav nav-masthead justify-content-center align-items-center">
             <a class="nav-link" href="/" data-path="/">Home</a>
             <a class="nav-link" href="/trainers" data-path="/trainers">Trainers</a>
+            <a class="nav-link" sec:authorize="isAuthenticated()" href="/calendar">My Calendar</a>
+
+            
 
             <!-- right side: login/username -->
             <div class="ml-3 d-flex align-items-center">

@@ -1,22 +1,33 @@
 package com.example.FitTrack.service;
 
 
+import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.FitTrack.repository.AppointmentRepository;
-
-import jakarta.transaction.Transactional;
+import com.example.FitTrack.repository.SiteUserRepository;
+import com.example.FitTrack.dto.validation.AppointmentValidationInfo;
+import com.example.FitTrack.dto.validation.AppointmentValidationResult;
 import com.example.FitTrack.entities.Appointment;
+import com.example.FitTrack.entities.SiteUser;
+import com.example.FitTrack.enums.AppointmentStatus;
 
 @Service
 public class AppointmentService {
 
 	private AppointmentRepository repo;
+	private SiteUserRepository userRepo;
 
-	public AppointmentService(AppointmentRepository repo) {
+	public AppointmentService(AppointmentRepository repo, SiteUserRepository userRepo) {
 		this.repo = repo;
+		this.userRepo = userRepo;
 	}
 	
 	//methods
@@ -25,6 +36,102 @@ public class AppointmentService {
 	public List<Appointment> getAllAppointments(){
 		return repo.findAll();
 	}
+	
+	@Transactional
+	public Optional<Appointment> getAppById(int id){
+		return repo.findById(id);
+	}
+	
+	@Transactional
+	public List<Appointment> getOverlappingAppointmentsByTrainerAndTime(Integer trainerId, Instant start, Instant end){
+		if (trainerId == null || start == null || end == null) {
+			throw new IllegalArgumentException("Input values must not be null");
+		}
+		if (start.isAfter(end)) {
+			throw new IllegalArgumentException("Start time can't be after end time");
+		}
+		return repo.findOverlappingAppointmentsTrainer(trainerId, start, end);
+	}
+	
+	@Transactional
+	public List<Appointment> getOverlappingAppointmentsByTraineeAndTime(Integer traineeId, Instant start, Instant end){
+		if (traineeId == null || start == null || end == null) {
+			throw new IllegalArgumentException("Input values must not be null");
+		}
+		if (start.isAfter(end)) {
+			throw new IllegalArgumentException("Start time can't be after end time");
+		}
+		return repo.findOverlappingAppointmentsTrainee(traineeId, start, end);
+	}
+	@Transactional
+	public Appointment saveAppointment(Appointment app) {
+		//there is a logic in the scheduleController that checks for conflicting appointments and then calls this
+		//if i have time i will move that logic into this method, it needs to be in a transactional method to make sure it works
+		return repo.save(app);
+	}
+	
+	
+	
+	//a method to validate that any request
+	//a. is of an existing appointment
+	//and b. the appointment belongs to the requesting user
+	@Transactional
+	public AppointmentValidationResult validateRequest(User user, Authentication authentication, Integer id) {
+		//check user
+		Optional<SiteUser> givenUser = userRepo.findByUsername(user.getUsername());
+		if (givenUser.isEmpty()) {
+			return new AppointmentValidationResult(false, "user does not exist, this should never be called as we are already logged in as the user that supposedly doesnt exist", null);
+		}
+		SiteUser confirmedUser = givenUser.get();
+		
+		//check if appointment exists
+		Optional<Appointment> givenApp = repo.findById(id);
+		if (givenApp.isEmpty()) {
+			return new AppointmentValidationResult(false, "The requested appointment does not exist", null);
+		}
+		Appointment confirmedApp = givenApp.get();
+		
+		//check role of requesting user
+		boolean isTrainer = authentication.getAuthorities().stream()
+	            .anyMatch(a -> a.getAuthority().equals("ROLE_TRAINER"));
+		
+		if (isTrainer) {
+			if (!confirmedApp.getMyTrainer().equals(confirmedUser)) {
+				return new AppointmentValidationResult(false, "You are trying to access an appointment you are not the trainer for", null);
+			}
+			
+		}else {
+			if (!confirmedApp.getMyTrainee().equals(confirmedUser)) {
+				return new AppointmentValidationResult(false, "You are trying to access an appointment you are not the trainee for", null);
+			}
+			
+		}
+		
+		AppointmentValidationInfo resultInfo = new AppointmentValidationInfo();
+		resultInfo.setMyApp(confirmedApp);
+		resultInfo.setMyTrainer(confirmedApp.getMyTrainer());
+		resultInfo.setMyTrainee(confirmedApp.getMyTrainee());
+		resultInfo.setIsTrainer(isTrainer);
+		
+		return new AppointmentValidationResult(true, null, resultInfo);
+		
+	}
+	
+	
+	@Transactional
+    public void updateAppointment(Appointment app) {
+    	//it just takes in an appointment and makes sure it's up to date
+    	//this method is used by other methods that want to update an appointment as a safety measure
+    	Instant now = Instant.now();
+    	if (app.getEndTime().isBefore(now)) {
+    		if (app.getStatus().equals(AppointmentStatus.Accepted)) {
+    			app.setStatus(AppointmentStatus.Completed);
+    		}else if (app.getStatus().equals(AppointmentStatus.Requested)) {
+    			app.setStatus(AppointmentStatus.Rejected);
+    		}
+    	}
+    }
+	
 	
 	
 }

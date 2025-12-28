@@ -1,5 +1,6 @@
 package com.example.FitTrack.service;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -13,11 +14,13 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.example.FitTrack.repository.AppointmentRepository;
 import com.example.FitTrack.repository.SiteUserRepository;
 import com.example.FitTrack.repository.UserRoleRepository;
 
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.example.FitTrack.entities.Appointment;
 import com.example.FitTrack.entities.SiteUser;
 import com.example.FitTrack.entities.UserRole;
 
@@ -26,12 +29,14 @@ public class SiteUserService implements UserDetailsService {
 
 	private SiteUserRepository userRepo;
 	private UserRoleRepository roleRepo;
+	private AppointmentRepository appRepo;
 	private BCryptPasswordEncoder passwordEncoder;
 
 	
-	public SiteUserService(SiteUserRepository userRepo, UserRoleRepository roleRepo, BCryptPasswordEncoder passwordEncoder) {
+	public SiteUserService(SiteUserRepository userRepo, UserRoleRepository roleRepo, AppointmentRepository appRepo, BCryptPasswordEncoder passwordEncoder) {
 		this.userRepo = userRepo;
 		this.roleRepo = roleRepo;
+		this.appRepo = appRepo;
 		this.passwordEncoder = passwordEncoder;
 	}
 	
@@ -59,7 +64,6 @@ public class SiteUserService implements UserDetailsService {
 	
     @Transactional
     public Integer saveUser(SiteUser user, Integer roleId) {
-        System.out.println("I am in the user");
     	String passwd= user.getPassword();
         String encodedPassword = passwordEncoder.encode(passwd);
         user.setPassword(encodedPassword);
@@ -79,7 +83,6 @@ public class SiteUserService implements UserDetailsService {
         user.setRoles(roles);
 
         user = userRepo.save(user);
-        System.out.println("i reached here");
         return user.getId();
     }
 
@@ -96,18 +99,18 @@ public class SiteUserService implements UserDetailsService {
 	}
 	
 	@Transactional
-	public List<SiteUser> getUsersByRole(UserRole role){
+	public Optional<List<SiteUser>> getUsersByRole(UserRole role){
 		return userRepo.findByRoles(role);
 	}
 	
 	@Transactional
-	public SiteUser getUserById(Integer id) {
-		return userRepo.findById(id).get();
+	public Optional<SiteUser> getUserById(Integer id) {
+		return userRepo.findById(id);
 	}
 	
 	@Transactional
-	public SiteUser getUserByUsername(String username) {
-		return userRepo.findByUsername(username).get();
+	public Optional<SiteUser> getUserByUsername(String username) {
+		return userRepo.findByUsername(username);
 	}
 
     @Transactional

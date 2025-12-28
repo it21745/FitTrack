@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity6"
+      layout:decorate="~{page_layout/layout}">
+<head>
+  <meta charset="UTF-8">
+  <title>Calendar</title>
+</head>
+<body>
+<div layout:fragment="main-content">
+    <link rel="stylesheet" href="/css/event-calendar.min.css">
+    
+    <style>
+        /* Το κουμπι today θελει ειδικο styling για να μην δειχνει χαλια */
+        #ec .ec-button.ec-today {
+            background-color: #495057;
+            color: white !important;
+            border-color: #495057;
+        }
+        
+        /* μεγεθος κειμενου των events */
+        #ec .ec-event-title,
+        #ec .ec-event-time,
+        #ec .fc-event-title,
+        #ec .fc-event-time {
+            font-size: 11px !important;
+            line-height: 1.2 !important;
+        }
+        
+        #ec .fc-event, #ec .ec-event {
+            cursor: pointer;
+        }
+    </style>
+    
+    <div style="text-align: left; max-width: 1200px; margin: 0 auto; min-height: 800px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+		    <h2 style="color: white; margin: 0;">Event Calendar</h2>
+		
+		    <a sec:authorize="hasRole('ROLE_TRAINER')"
+		       href="/availabilities/create"
+		       style="
+		           background-color: #28a745;
+		           color: white;
+		           padding: 8px 14px;
+		           border-radius: 5px;
+		           text-decoration: none;
+		           font-weight: bold;
+		       ">
+		        + Add New Availability
+		    </a>
+		</div>
+
+        <div id="ec" style="height: 700px; background: #474646; padding: 15px; border-radius: 8px;"></div>
+    </div>
+    
+    <script src="/js/event-calendar.min.js"></script>
+    <script th:inline="javascript">
+        setTimeout(function() {
+        	var backendEvents = /*[[${eventList}]]*/ [];
+            
+            // μετατροπη σε μορφη ημερολογιου
+            var calendarEvents = backendEvents.map(function(event) {
+                var title = event.type === 'appointment' ? 'Appointment' : 
+                           event.type === 'availability_onetime' ? 'Available (One-time)' :
+                           event.type === 'availability_recurring' ? 'Available (Recurring)' : 'Available';
+                
+                return {
+                    id: event.id,
+                    title: title,
+                    start: event.start,
+                    end: event.end,
+                    backgroundColor: event.color,
+                    extendedProps: {
+                        fullTitle: title,
+                        type: event.type
+                    }
+                };
+            });
+            
+            let ec = EventCalendar.create(document.getElementById('ec'), {
+                view: 'timeGridWeek',
+                headerToolbar: {
+                    start: 'prev,next today',
+                    center: 'title',
+                    end: ''
+                },
+                height: '100%',
+                editable: false,
+                selectable: false,
+                eventStartEditable: false,
+                eventDurationEditable: false,
+                droppable: false,
+                // παιρνουμε τα events απο το backend
+                events: calendarEvents,
+                eventClick: function(info) {
+				    let eid = info.event.id;
+				    let eventType = info.event.extendedProps.type;
+				    
+				    if (!eid || !eventType) return;
+				    
+				    // διαφορετικη συμπεριφορα αναλογα με τον τυπο event
+				    if (eventType === 'appointment') {
+				        window.location.href = '/appointments/' + encodeURIComponent(eid) + '/view';
+				    } else if (eventType === 'availability_onetime' || eventType === 'availability_recurring') {
+				        window.location.href = '/availabilities/' + encodeURIComponent(eid) + '/view';
+				    }
+				},
+                eventDidMount: function(info) {
+                    info.el.setAttribute('title', info.event.title);
+                }
+            });
+        }, 100);
+    </script>
+</div>
+</body>
+</html>

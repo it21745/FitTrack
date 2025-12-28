@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{page_layout/layout}">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Successful deletion</title>
+</head>
+<body>
+<div layout:fragment="main-content">
+	<div style="max-width: 700px; margin: 0 auto; text-align: center; padding: 40px;">
+
+    <h2 style="margin-bottom: 25px;">✔️ You have successfully deleted the availability</h2>
+
+    <p style="font-size: 18px; line-height: 1.6;">
+      Keep in mind your appointments for this availability have not been deleted
+    </p>
+
+    <p style="margin-top: 30px; font-size: 16px;">
+      To delete them or view different availabilities return to your
+      <strong>
+        <a th:href="@{/calendar}">Calendar</a>
+      </strong>.
+    </p>
+
+
+  </div>
+	
+</div>
+</body>
+</html>
