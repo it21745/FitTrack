@@ -65,17 +65,5 @@ public class TrainerController {
 		return "trainers/trainerList";
 	}
 	
-	@GetMapping("/weather")
-	public String weatherTest(Model model) {
-		
-		ForecastBlock out = weatherService.getAthensWeatherAtInstant(Instant.now().plus(2,ChronoUnit.DAYS)).block();
-		if (out != null) {
-			//System.out.println(out.str());
-		}else {
-			System.out.println("i got a null");
-		}
-		
-		
-		return "/temp/1";
-	}
+
 }
