@@ -45,6 +45,23 @@
         .appointment-card .value {
             color: #212529;
         }
+        
+        .appointment-card a.value {
+		    color: #0d6efd;
+		    text-decoration: underline;
+		    font-weight: 600;
+		}
+		
+		.appointment-card a.value:hover {
+		    color: #084298;
+		    text-decoration: none;
+		}
+		
+		.appointment-card .weather {
+		    font-size: 0.95rem;
+		    color: #495057;
+		}
+				
 
         .appointment-card .primary {
             background: #0d6efd;
@@ -104,19 +121,37 @@
         <!-- Participants -->
         <div class="row">
             <div class="col">
-                <span class="label">Trainer</span>
+                <span class="label" sec:authorize="hasRole('TRAINEE')">Trainer</span>
+                <a class="value"
+                	sec:authorize="hasRole('TRAINEE')"
+                	th:href="@{/users/view/{id}(id=${trainerId})}"
+                    th:text="${trainerName}">
+                    trainerUsername
+                </a>
+            
+                <span class="label" sec:authorize="!hasRole('TRAINEE')">Trainer</span>
                 <div class="value"
-                     th:text="${trainerName}">
+                	sec:authorize="!hasRole('TRAINEE')"
+                    th:text="${trainerName}">
                     trainerUsername
                 </div>
             </div>
 
             <div class="col">
-                <span class="label">Trainee</span>
+                <span class="label" sec:authorize="hasRole('TRAINEE')">Trainee</span>
                 <div class="value"
-                     th:text="${traineeName}">
+                	sec:authorize="hasRole('TRAINEE')"
+                    th:text="${traineeName}">
                     traineeUsername
                 </div>
+
+                <span class="label" sec:authorize="!hasRole('TRAINEE')">Trainee</span>
+                <a class="value"
+                	sec:authorize="!hasRole('TRAINEE')"
+                     th:href="@{/users/view/{id}(id=${traineeId})}"
+                     th:text="${traineeName}">
+                    traineeUsername
+                </a>
             </div>
         </div>
 
@@ -138,6 +173,30 @@
                 </div>
             </div>
         </div>
+        
+		<!-- Weather -->
+		<div class="row">
+		    <div class="col">
+		
+		        <span class="label">Weather</span>
+		
+		        <!-- Weather available -->
+		        <div class="value"
+		             th:if="${weather != null and !#strings.isEmpty(weather)}"
+		             th:text="${weather}">
+		            Sunny, 22°C
+		        </div>
+		
+		        <!-- Weather not available -->
+		        <div class="value"
+		             th:unless="${weather != null and !#strings.isEmpty(weather)}">
+		            Weather prediction not available for this day.
+		        </div>
+		
+		    </div>
+		</div>
+
+		        
 
         <!-- Log -->
         <div style="margin-top: 15px;">

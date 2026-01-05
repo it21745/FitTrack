@@ -1,5 +1,6 @@
 package com.example.FitTrack.controllers;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.example.FitTrack.dto.WeatherReportDto;
 import com.example.FitTrack.dto.validation.AppointmentValidationInfo;
 import com.example.FitTrack.dto.validation.AppointmentValidationResult;
 import com.example.FitTrack.entities.Appointment;
@@ -26,23 +28,20 @@ import com.example.FitTrack.service.AppointmentService;
 import com.example.FitTrack.service.AvailabilityService;
 import com.example.FitTrack.service.SiteUserService;
 import com.example.FitTrack.service.UserRoleService;
+import com.example.FitTrack.service.WeatherService;
 
 @Controller
 @RequestMapping("/appointments")
 public class AppointmentController {
 
 	
-	private SiteUserService userService;
-	private UserRoleService roleService;
 	private AppointmentService appService;
-	private AvailabilityService availService;
+	private WeatherService weatherService;
 	
 	
-	public AppointmentController(SiteUserService userService, UserRoleService roleService, AppointmentService appService, AvailabilityService availService) {
-		this.userService = userService;
-		this.roleService = roleService;
+	public AppointmentController(AppointmentService appService, WeatherService weatherService) {
 		this.appService = appService;
-		this.availService = availService;
+		this.weatherService = weatherService;
 	}
 	
 	
@@ -57,13 +56,24 @@ public class AppointmentController {
 			return "/error";
 		}
 		
-		//checks passed, show appointment
+		//checks passed, get info
 		AppointmentValidationInfo appInfo = result.getInfo();
 		
-		model.addAttribute("appointment", appInfo.getMyApp());
+		//also check weather
+		WeatherReportDto weatherReport = weatherService.getAthensWeatherAtInstant(appInfo.getMyApp().getStartTime())
+				.map(WeatherReportDto::createReport)
+				.defaultIfEmpty(WeatherReportDto.unavailable())
+				.block();
+		
+		
+		//show appointment		
+		model.addAttribute("appointment", appInfo.getMyApp());  //every attribute of an appointment (id, trainer, trainee, start, end,status, log) will need to be displayed here, so there's no point in adding a dto to hide anything
 		model.addAttribute("AppointmentStatus", AppointmentStatus.class);
 		model.addAttribute("trainerName", appInfo.getMyTrainer().getUsername());
 		model.addAttribute("traineeName", appInfo.getMyTrainee().getUsername());
+		model.addAttribute("traineeId",appInfo.getMyTrainee().getId());
+		model.addAttribute("trainerId",appInfo.getMyTrainer().getId());
+		model.addAttribute("weather", weatherReport.toString());
 		return "/calendar/appointments/appView";
 	}
 	
@@ -89,7 +99,7 @@ public class AppointmentController {
 		Appointment app = info.getMyApp();
 		
 		//make sure appointment is up to date
-		appService.updateAppointment(app);
+		appService.syncAppointmentStatus(app);
 		
 		
 		//change appointment status
@@ -98,7 +108,16 @@ public class AppointmentController {
 				case "confirm":
 					if (app.getStatus().equals(AppointmentStatus.Requested)) {
 						app.setStatus(AppointmentStatus.Accepted);
+						
 						//when a trainer confirms an appointment it should also automaticaly reject other appointments on this availability
+						List<Appointment> conflictingApps = appService.getOverlappingAppointmentsByTrainerAndTime(info.getMyTrainer().getId(), app.getStartTime(), app.getEndTime());
+						for (Appointment a: conflictingApps) {
+							if (!a.equals(app)) {
+								if (a.getStatus().equals(AppointmentStatus.Requested)) {
+									a.setStatus(AppointmentStatus.Rejected);
+								}
+							}
+						}
 					}else {
 						model.addAttribute("errorReason","Invalid form input");
 						return "/error";
@@ -153,6 +172,7 @@ public class AppointmentController {
 	}
 	
 	
+	//edit the log of an appointment
 	@PreAuthorize("hasRole('ROLE_TRAINER')")
 	@GetMapping("/{id}/edit")
 	public String editAppointment(@AuthenticationPrincipal User user, Authentication authentication, Model model, @PathVariable Integer id) {
@@ -163,9 +183,9 @@ public class AppointmentController {
 		}
 		AppointmentValidationInfo info = result.getInfo();
 		Appointment app = info.getMyApp();
-		appService.updateAppointment(app);
+		appService.syncAppointmentStatus(app);
 		
-		//we can only edit the log for a completed appointment
+		//we can only edit the log for a COMPLETED appointment
 		if (!app.getStatus().equals(AppointmentStatus.Completed)) {
 			model.addAttribute("errorReason","You cannot edit the log of an appointment that has not been completed");
 			return "/error";
@@ -192,7 +212,7 @@ public class AppointmentController {
 		}
 		AppointmentValidationInfo info = result.getInfo();
 		Appointment app = info.getMyApp();
-		appService.updateAppointment(app);
+		appService.syncAppointmentStatus(app);
 		
 		if (!app.getStatus().equals(AppointmentStatus.Completed)) {
 			model.addAttribute("errorReason","You cannot edit the log of an appointment that has not been completed");

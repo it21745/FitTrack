@@ -43,8 +43,7 @@ public class SiteUser {
 	private String info;
 
     // JSON string με στοιχεία fitness profile (στόχοι, ύψος, βάρος κτλ.)
-    @Lob
-    @Column
+    @Column(columnDefinition = "TEXT")
     private String fitnessProfileJson;
 	
 	@ManyToMany(fetch = FetchType.LAZY)
@@ -63,6 +62,21 @@ public class SiteUser {
     @OneToMany(mappedBy = "myTrainee", fetch = FetchType.LAZY)
     private List<Appointment> appointmentsAsTrainee;
 
+    
+    //helper getters
+    public boolean isTrainer() {
+        if (roles == null) return false;
+        return roles.stream().anyMatch(role -> "ROLE_TRAINER".equals(role.getName()));
+    }
+    
+    public String getRoleString() {
+    	if (roles == null) return null;
+    	if (isTrainer()) {
+    		return "Trainer";
+    	}else {
+    		return "Trainee";
+    	}
+    }
 	
     
     //constructors
