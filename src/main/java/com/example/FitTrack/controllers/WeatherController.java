@@ -1,5 +1,6 @@
 package com.example.FitTrack.controllers;
 
+import com.example.FitTrack.dto.weather.WeatherDto;
 import com.example.FitTrack.service.WeatherService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,7 +17,7 @@ public class WeatherController {
     }
 
     @GetMapping("/api/weather/{city}")
-    public Mono<String> getWeather(@PathVariable String city) {
+    public Mono<WeatherDto> getWeather(@PathVariable String city) {
         return weatherService.getWeatherForCity(city);
     }
 }
