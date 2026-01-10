@@ -32,6 +32,14 @@
         #ec .fc-event, #ec .ec-event {
             cursor: pointer;
         }
+        
+		#ec .ec-event,
+		#ec .fc-event {
+		    border: 1px solid rgba(255, 255, 255, 0.4);
+		    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.25);
+		    box-sizing: border-box;
+		}
+
     </style>
     
     <div style="text-align: left; max-width: 1200px; margin: 0 auto; min-height: 800px;">
@@ -52,13 +60,74 @@
 		    </a>
 		</div>
 
-        <div id="ec" style="height: 700px; background: #474646; padding: 15px; border-radius: 8px;"></div>
+        <div style="display: flex; gap: 16px; align-items: flex-start;">
+
+    <!-- Calendar -->
+    <div id="ec"
+         style="
+            flex: 1;
+            min-width: 600px;
+            height: 700px;
+            background: #474646;
+            padding: 15px;
+            border-radius: 8px;
+         ">
+    </div>
+
+    <!-- Legend -->
+    <div style="
+        width: 200px;
+        background: #3f3f3f;
+        padding: 12px 14px;
+        border-radius: 8px;
+        color: white;
+        font-size: 13px;
+        flex-shrink: 0;
+    ">
+        <div style="font-weight: bold; margin-bottom: 8px;">Legend</div>
+
+        <div style="display: flex; align-items: center; margin-bottom: 6px;">
+            <span style="width:14px;height:14px;background:#4FBF36;border-radius:3px;margin-right:8px;"></span>
+            Availability
+        </div>
+
+        <hr style="border-color:#555;margin:8px 0;">
+
+        <div style="display: flex; align-items: center; margin-bottom: 6px;">
+            <span style="width:14px;height:14px;background:#A3A5FF;border-radius:3px;margin-right:8px;"></span>
+            Requested Appointment
+        </div>
+
+        <div style="display: flex; align-items: center; margin-bottom: 6px;">
+            <span style="width:14px;height:14px;background:#0600FF;border-radius:3px;margin-right:8px;"></span>
+            Accepted Appointment
+        </div>
+        
+        <div style="display: flex; align-items: center; margin-bottom: 6px;">
+            <span style="width:14px;height:14px;background:#040050;border-radius:3px;margin-right:8px;"></span>
+            Completed Appointment
+        </div>
+
+        <div style="display: flex; align-items: center; margin-bottom: 6px;">
+            <span style="width:14px;height:14px;background:#737373;border-radius:3px;margin-right:8px;"></span>
+            Rejected Appointment
+        </div>
+
+        <div style="display: flex; align-items: center;">
+            <span style="width:14px;height:14px;background:#FF0000;border-radius:3px;margin-right:8px;"></span>
+            Canceled Appointment
+        </div>
+    </div>
+
+</div>
+
     </div>
     
     <script src="/js/event-calendar.min.js"></script>
     <script th:inline="javascript">
         setTimeout(function() {
         	var backendEvents = /*[[${eventList}]]*/ [];
+        	//window.__backendEvents = backendEvents;
             
             // μετατροπη σε μορφη ημερολογιου
             var calendarEvents = backendEvents.map(function(event) {
@@ -92,6 +161,9 @@
                 eventStartEditable: false,
                 eventDurationEditable: false,
                 droppable: false,
+                eventOverlap: true,
+                slotEventOverlap: true,
+                eventMaxStack: 5,
                 // παιρνουμε τα events απο το backend
                 events: calendarEvents,
                 eventClick: function(info) {

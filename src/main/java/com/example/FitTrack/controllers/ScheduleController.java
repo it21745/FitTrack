@@ -21,6 +21,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.example.FitTrack.dto.WeatherReportDto;
+import com.example.FitTrack.dto.API_dto.ForecastBlock;
 import com.example.FitTrack.dto.validation.AvailabilityValidationInfo;
 import com.example.FitTrack.dto.validation.AvailabilityValidationResult;
 import com.example.FitTrack.entities.Appointment;
@@ -31,137 +33,29 @@ import com.example.FitTrack.service.AppointmentService;
 import com.example.FitTrack.service.AvailabilityService;
 import com.example.FitTrack.service.SiteUserService;
 import com.example.FitTrack.service.UserRoleService;
+import com.example.FitTrack.service.WeatherService;
+
+import reactor.core.publisher.Mono;
 
 @Controller
 @RequestMapping("/schedule")
 public class ScheduleController {
 	private SiteUserService userService;
-	private UserRoleService roleService;
 	private AppointmentService appService;
 	private AvailabilityService availService;
+	private WeatherService weatherService;
 	
 	private final int MAX_APPOINTMENTS = 3;
 	
-	public ScheduleController(SiteUserService userService, UserRoleService roleService, AppointmentService appService,
-			AvailabilityService availService) {
+	public ScheduleController(SiteUserService userService, AppointmentService appService,
+			AvailabilityService availService, WeatherService weatherService) {
 		this.userService = userService;
-		this.roleService = roleService;
 		this.appService = appService;
 		this.availService = availService;
+		this.weatherService = weatherService;
 	}
 	
 	
-	//in this method we will verify that the info given by the url is valid, that the user can request an appointment etc
-	private AvailabilityValidationResult verifyRequest(boolean isRecurring,Integer id, Integer inst, User user) {
-		//getting the user
-		Optional<SiteUser> givenTrainee = userService.getUserByUsername(user.getUsername());
-		if (givenTrainee.isEmpty()) {
-			System.out.println("user does not exist, this should never be called as we are already logged in as the user that supposedly doesnt exist");
-			return new AvailabilityValidationResult(false, "Current user does not exist", null);
-		}
-		SiteUser confirmedTrainee = givenTrainee.get();
-		
-		//checking if their active appointments exceed the limit
-		List<Appointment> traineeAppointments = confirmedTrainee.getAppointmentsAsTrainee();
-		int activeAppointments = 0;
-		for (Appointment app: traineeAppointments) {
-			AppointmentStatus status = app.getStatus();
-			if (status.equals(AppointmentStatus.Requested) || status.equals(AppointmentStatus.Accepted)) {
-				activeAppointments++;
-			}
-		}
-		//depending on whether they exceed max active appointments we return a valid or invalid result
-		if (activeAppointments >= MAX_APPOINTMENTS) {
-			return new AvailabilityValidationResult(false, "You have exceeded the maximum amount of active appointments (3)", null);
-		}
-		
-		//find the given availability (if it exists) and get info from it
-		Optional<Availability> givenAvail = availService.getAvailById(id);
-		if (givenAvail.isEmpty()) {
-			return new AvailabilityValidationResult(false, "You are trying to schedule an appointment on a non existent slot", null);
-		}
-		Availability confirmedAvail = givenAvail.get();
-		int trainerId = confirmedAvail.getMyTrainer().getId();
-		SiteUser confirmedTrainer = userService.getUserById(trainerId).get();
-		
-		//time figuring out
-		ZoneId athensZone = ZoneId.of("Europe/Athens");
-		Instant startInstant;
-		Instant endInstant;
-		
-		if (!isRecurring && inst == null) {
-			//this part should only accept onetime availabilities so we have a check here
-			if (!confirmedAvail.isOneTime()) {
-				return new AvailabilityValidationResult(false, "You have entered a faulty url for your requested appointment", null);
-			}
-			
-			startInstant = ZonedDateTime.of(confirmedAvail.getDate(), confirmedAvail.getStartTime(), athensZone).toInstant();
-			endInstant = ZonedDateTime.of(confirmedAvail.getDate(), confirmedAvail.getEndTime(), athensZone).toInstant();
-			
-		}else {
-			//this part should only accept recurring availabilities so we have a check here
-			if (confirmedAvail.isOneTime()) {
-				return new AvailabilityValidationResult(false, "You have entered a faulty url for your requested appointment", null);
-			}
-			
-			LocalDate curDay = LocalDate.now();
-			DayOfWeek targetDay = confirmedAvail.getDay();
-			LocalDate firstInstanceOfAvailability = curDay.with(TemporalAdjusters.nextOrSame(targetDay));
-			
-			
-			 startInstant = ZonedDateTime.of(firstInstanceOfAvailability, confirmedAvail.getStartTime(), athensZone).plusWeeks(inst).toInstant();
-			 endInstant = ZonedDateTime.of(firstInstanceOfAvailability, confirmedAvail.getEndTime(), athensZone).plusWeeks(inst).toInstant();
-			
-		}
-		
-		
-		/*
-		 * ελεγχουμε αν ο trainer εχει  καποιο appointment στην ωρα που θελουμε να κανουμε request
-		 * κανονικα αν ειχε ηδη επιβεβαιωσει τοτε δεν θα βλεπαμε το availability στο ημερολογιο
-		 * αρα δεν θα ερχομασταν σε αυτη τη σελιδα, αλλα και παλι μπορει να επιβεβαιωσει καθως την φορτωνουμε
-		 * ή καποιος χρηστης να ερθει εδω γραφοντας τυχαιους αριθμους στο url αντι απο το ημερολογιο 
-		 */
-		List<Appointment> confictingAppointmentsTrainer = appService.getOverlappingAppointmentsByTrainerAndTime(confirmedTrainer.getId(), startInstant, endInstant);
-		for (Appointment app: confictingAppointmentsTrainer) {
-			if (app.getStatus().equals(AppointmentStatus.Accepted)) {
-				return new AvailabilityValidationResult(false, "The trainer has already accepted an appointment at this time", null);
-			}
-		}
-		
-		//check if the applying trainee already has any conflicting appointments at this time
-		List<Appointment> conflictingAppointmentsTrainee = appService.getOverlappingAppointmentsByTraineeAndTime(confirmedTrainee.getId(), startInstant, endInstant);
-		for (Appointment app: conflictingAppointmentsTrainee) {
-			//if the trainee has any appointments at that time that are not either canceled or rejected
-			//then they are not allowed to create a new one
-			AppointmentStatus st = app.getStatus();
-			if ((!st.equals(AppointmentStatus.Canceled)) && (!st.equals(AppointmentStatus.Rejected))) {
-				return new AvailabilityValidationResult(false, "You already have an appointment scheduled for that time", null);
-			}
-		}
-		
-		//all checks passed successfuly, we now return the info
-		AvailabilityValidationInfo info = new AvailabilityValidationInfo(
-				confirmedTrainer,
-				confirmedTrainee,
-				confirmedAvail,
-				startInstant,
-				endInstant
-				);
-		return new AvailabilityValidationResult(true, null, info);
-		
-		
-		
-	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-
 	@PreAuthorize("hasRole('ROLE_TRAINEE')")
 	@GetMapping("/{id}")
 	public String createAppointment(@PathVariable Integer id, @AuthenticationPrincipal User user, Model model) {
@@ -182,6 +76,9 @@ public class ScheduleController {
 		Availability confirmedAvail = info.getConfirmedAvailability();
 		Instant startInstant = info.getStartInstant();
 		Instant endInstant = info.getEndInstant();
+		String weatherInfo = info.getWeatherInfo();
+		
+		
 		
 		
 		
@@ -190,17 +87,11 @@ public class ScheduleController {
 		model.addAttribute("date", confirmedAvail.getDate().toString());
 		model.addAttribute("startTime", confirmedAvail.getStartTime().toString());
 		model.addAttribute("endTime", confirmedAvail.getEndTime().toString());
+		model.addAttribute("weather", weatherInfo);
 		
 		
 		return "/schedule/requestAppointment";
 	}
-	
-	
-	
-	
-	
-	
-	
 	
 	
 	
@@ -223,6 +114,7 @@ public class ScheduleController {
 		Availability confirmedAvail = info.getConfirmedAvailability();
 		Instant startInstant = info.getStartInstant();
 		Instant endInstant = info.getEndInstant();
+		String weatherInfo = info.getWeatherInfo();
 		
 		
 		//add info to redirect, whether we succeed or fail we will show it again
@@ -231,6 +123,7 @@ public class ScheduleController {
 		redirectAttributes.addAttribute("date", confirmedAvail.getDate().toString());
 		redirectAttributes.addAttribute("startTime", confirmedAvail.getStartTime().toString());
 		redirectAttributes.addAttribute("endTime", confirmedAvail.getEndTime().toString());
+		model.addAttribute("weather", weatherInfo);
 		
 		//create new appointment with the given info and try to save it in the db
 		Appointment newAppointment = new Appointment();
@@ -256,8 +149,6 @@ public class ScheduleController {
 	
 	
 	
-	
-	
 	@PreAuthorize("hasRole('ROLE_TRAINEE')")
 	@GetMapping("/{id}/{inst}")
 	public String createAppointmentFromRecurringAvailability(@PathVariable Integer id, @PathVariable Integer inst, @AuthenticationPrincipal User user, Model model) {
@@ -275,6 +166,7 @@ public class ScheduleController {
 		Availability confirmedAvail = info.getConfirmedAvailability();
 		Instant startInstant = info.getStartInstant();
 		Instant endInstant = info.getEndInstant();
+		String weatherInfo = info.getWeatherInfo();
 		
 		
 		ZoneId athensZone = ZoneId.of("Europe/Athens");
@@ -287,6 +179,7 @@ public class ScheduleController {
 		model.addAttribute("date", startInstant.atZone(athensZone).toLocalDate().toString());
 		model.addAttribute("startTime", confirmedAvail.getStartTime().toString());
 		model.addAttribute("endTime", confirmedAvail.getEndTime().toString());
+		model.addAttribute("weather", weatherInfo);
 		
 		
 		return "/schedule/requestAppointment";
@@ -317,6 +210,7 @@ public class ScheduleController {
 		Availability confirmedAvail = info.getConfirmedAvailability();
 		Instant startInstant = info.getStartInstant();
 		Instant endInstant = info.getEndInstant();
+		String weatherInfo = info.getWeatherInfo();
 		
 		
 		
@@ -329,6 +223,7 @@ public class ScheduleController {
 		redirectAttributes.addAttribute("date", startInstant.atZone(athensZone).toLocalDate().toString());
 		redirectAttributes.addAttribute("startTime", confirmedAvail.getStartTime().toString());
 		redirectAttributes.addAttribute("endTime", confirmedAvail.getEndTime().toString());
+		redirectAttributes.addAttribute("weather", weatherInfo);
 		
 		
 		
@@ -364,6 +259,116 @@ public class ScheduleController {
 	    return "/schedule/appointmentRequestedSuccessfully";
 	}
 
+	
+	
+	//helper method
+	
+	//in this method we will verify that the info given by the url is valid, that the user can request an appointment etc
+		private AvailabilityValidationResult verifyRequest(boolean isRecurring,Integer id, Integer inst, User user) {
+			//getting the user
+			Optional<SiteUser> givenTrainee = userService.getUserByUsername(user.getUsername());
+			if (givenTrainee.isEmpty()) {
+				System.out.println("user does not exist, this should never be called as we are already logged in as the user that supposedly doesnt exist");
+				return new AvailabilityValidationResult(false, "Current user does not exist", null);
+			}
+			SiteUser confirmedTrainee = givenTrainee.get();
+			
+			//checking if their active appointments exceed the limit
+			List<Appointment> traineeAppointments = confirmedTrainee.getAppointmentsAsTrainee();
+			int activeAppointments = 0;
+			for (Appointment app: traineeAppointments) {
+				AppointmentStatus status = app.getStatus();
+				if (status.equals(AppointmentStatus.Requested) || status.equals(AppointmentStatus.Accepted)) {
+					activeAppointments++;
+				}
+			}
+			//depending on whether they exceed max active appointments we return a valid or invalid result
+			if (activeAppointments >= MAX_APPOINTMENTS) {
+				return new AvailabilityValidationResult(false, "You have exceeded the maximum amount of active appointments (3)", null);
+			}
+			
+			//find the given availability (if it exists) and get info from it
+			Optional<Availability> givenAvail = availService.getAvailById(id);
+			if (givenAvail.isEmpty()) {
+				return new AvailabilityValidationResult(false, "You are trying to schedule an appointment on a non existent slot", null);
+			}
+			Availability confirmedAvail = givenAvail.get();
+			int trainerId = confirmedAvail.getMyTrainer().getId();
+			SiteUser confirmedTrainer = userService.getUserById(trainerId).get();
+			
+			//time figuring out
+			ZoneId athensZone = ZoneId.of("Europe/Athens");
+			Instant startInstant;
+			Instant endInstant;
+			
+			if (!isRecurring && inst == null) {
+				//this part should only accept onetime availabilities so we have a check here
+				if (!confirmedAvail.isOneTime()) {
+					return new AvailabilityValidationResult(false, "You have entered a faulty url for your requested appointment", null);
+				}
+				
+				startInstant = ZonedDateTime.of(confirmedAvail.getDate(), confirmedAvail.getStartTime(), athensZone).toInstant();
+				endInstant = ZonedDateTime.of(confirmedAvail.getDate(), confirmedAvail.getEndTime(), athensZone).toInstant();
+				
+			}else {
+				//this part should only accept recurring availabilities so we have a check here
+				if (confirmedAvail.isOneTime()) {
+					return new AvailabilityValidationResult(false, "You have entered a faulty url for your requested appointment", null);
+				}
+				
+				LocalDate curDay = LocalDate.now();
+				DayOfWeek targetDay = confirmedAvail.getDay();
+				LocalDate firstInstanceOfAvailability = curDay.with(TemporalAdjusters.nextOrSame(targetDay));
+				
+				
+				 startInstant = ZonedDateTime.of(firstInstanceOfAvailability, confirmedAvail.getStartTime(), athensZone).plusWeeks(inst).toInstant();
+				 endInstant = ZonedDateTime.of(firstInstanceOfAvailability, confirmedAvail.getEndTime(), athensZone).plusWeeks(inst).toInstant();
+				
+			}
+			
+			
+			/*
+			 * ελεγχουμε αν ο trainer εχει  καποιο appointment στην ωρα που θελουμε να κανουμε request
+			 * κανονικα αν ειχε ηδη επιβεβαιωσει τοτε δεν θα βλεπαμε το availability στο ημερολογιο
+			 * αρα δεν θα ερχομασταν σε αυτη τη σελιδα, αλλα και παλι μπορει να επιβεβαιωσει καθως την φορτωνουμε
+			 * ή καποιος χρηστης να ερθει εδω γραφοντας τυχαιους αριθμους στο url αντι απο το ημερολογιο 
+			 */
+			List<Appointment> confictingAppointmentsTrainer = appService.getOverlappingAppointmentsByTrainerAndTime(confirmedTrainer.getId(), startInstant, endInstant);
+			for (Appointment app: confictingAppointmentsTrainer) {
+				if (app.getStatus().equals(AppointmentStatus.Accepted)) {
+					return new AvailabilityValidationResult(false, "The trainer has already accepted an appointment at this time", null);
+				}
+			}
+			
+			//check if the applying trainee already has any conflicting appointments at this time
+			List<Appointment> conflictingAppointmentsTrainee = appService.getOverlappingAppointmentsByTraineeAndTime(confirmedTrainee.getId(), startInstant, endInstant);
+			for (Appointment app: conflictingAppointmentsTrainee) {
+				//if the trainee has any appointments at that time that are not either canceled or rejected
+				//then they are not allowed to create a new one
+				AppointmentStatus st = app.getStatus();
+				if ((!st.equals(AppointmentStatus.Canceled)) && (!st.equals(AppointmentStatus.Rejected))) {
+					return new AvailabilityValidationResult(false, "You already have an appointment scheduled for that time", null);
+				}
+			}
+			
+			//check weather if possible
+			WeatherReportDto weatherReport = weatherService.getAthensWeatherAtInstant(startInstant)
+					.map(WeatherReportDto::createReport)
+					.defaultIfEmpty(WeatherReportDto.unavailable())
+					.block();
+			
+			
+			//all checks passed successfuly, we now return the info
+			AvailabilityValidationInfo info = new AvailabilityValidationInfo(
+					confirmedTrainer,
+					confirmedTrainee,
+					confirmedAvail,
+					startInstant,
+					endInstant,
+					weatherReport.toString()
+					);
+			return new AvailabilityValidationResult(true, null, info);
+		}
 	
 }
 

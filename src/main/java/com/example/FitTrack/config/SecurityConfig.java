@@ -86,6 +86,7 @@ public class SecurityConfig {
 						"/trainers",
 						"/users/register",
 						"/calendar/trainer/view/**",
+						"/users/view/**",
 						"/users/save",
 						"/images/**",
 						"/js/**",

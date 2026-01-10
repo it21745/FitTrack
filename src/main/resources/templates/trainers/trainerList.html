@@ -14,18 +14,18 @@
     <table class="table">
       <thead>
       <tr>
-        <th>Id</th>
-        <th>username</th>
+        <th>Username</th>
+        <th>Profile</th>
         <th>Schedule an appointment</th>
       </tr>
       </thead>
       <tbody>
       <tr th:each="trainer : ${trainer_list}">
-        <td th:text="${trainer.id}"></td>
         <td th:text="${trainer.username}"></td>
-        <td>
-        <a class="btn btn-outline-light btn-sm"  th:href="@{'/calendar/trainer/view/' + ${trainer.id}}">See availabilities</a>
-        </td>
+        <td> <a class="btn btn-outline-light btn-sm"  th:href="@{'/users/view/' + ${trainer.id}}">View Profile</a> </td>
+        <td> <a class="btn btn-outline-light btn-sm"  th:href="@{'/calendar/trainer/view/' + ${trainer.id}}">See availabilities</a> </td>
+        
+        
         
         
       </tr>
