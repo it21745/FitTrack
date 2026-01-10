@@ -1,5 +1,7 @@
 package com.example.FitTrack.dto.weather;
 
+import com.example.FitTrack.dto.WeatherReportDto;
+
 public class WeatherDto {
 
     private String description;
@@ -20,4 +22,5 @@ public class WeatherDto {
     public void setTemperature(double temperature) {
         this.temperature = temperature;
     }
+
 }

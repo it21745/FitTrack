@@ -10,7 +10,7 @@ public class AppointmentResponseDto {
     private LocalDateTime appointmentDate;
     private TrainingType trainingType;
     private String trainerName;
-    private String userName;
+    private String traineeName;
 
     public Long getId() {
         return id;
@@ -44,11 +44,11 @@ public class AppointmentResponseDto {
         this.trainerName = trainerName;
     }
 
-    public String getUserName() {
-        return userName;
+    public String getTraineeName() {
+        return traineeName;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public void setTraineeName(String userName) {
+        this.traineeName = userName;
     }
 }

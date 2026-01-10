@@ -6,10 +6,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.example.FitTrack.repository.AppointmentRepository;
 import com.example.FitTrack.repository.SiteUserRepository;
@@ -21,6 +23,7 @@ import com.example.FitTrack.enums.AppointmentStatus;
 
 import com.example.FitTrack.dto.appointment.AppointmentRequestDto;
 import com.example.FitTrack.dto.appointment.AppointmentResponseDto;
+import com.example.FitTrack.dto.WeatherReportDto;
 import com.example.FitTrack.dto.appointment.AppointmentDetailsDto;
 
 import java.time.ZoneId;
@@ -32,10 +35,12 @@ public class AppointmentService {
 
 	private AppointmentRepository repo;
 	private SiteUserRepository userRepo;
+	private WeatherService weatherService;
 
-	public AppointmentService(AppointmentRepository repo, SiteUserRepository userRepo) {
+	public AppointmentService(AppointmentRepository repo, SiteUserRepository userRepo, WeatherService weatherService) {
 		this.repo = repo;
 		this.userRepo = userRepo;
+		this.weatherService = weatherService;
 	}
 	
 	//methods
@@ -180,7 +185,13 @@ public class AppointmentService {
                         .getContext()
                         .getAuthentication()
                         .getName()
-        ).orElseThrow(() -> new RuntimeException("User not found"));
+        )
+        .orElseThrow(() ->
+                new ResponseStatusException(
+                        HttpStatus.UNAUTHORIZED,
+                        "Trainee not found"
+                )
+        );
 
         List<Appointment> apps = repo.findByMyTrainee(user);
 
@@ -199,7 +210,13 @@ public class AppointmentService {
                         .getContext()
                         .getAuthentication()
                         .getName()
-        ).orElseThrow(() -> new RuntimeException("Trainer not found"));
+        )
+        		.orElseThrow(() ->
+                new ResponseStatusException(
+                        HttpStatus.UNAUTHORIZED,
+                        "Trainer not found"
+                )
+        );
 
         List<Appointment> apps = repo.findByMyTrainer(trainer);
 
@@ -239,8 +256,17 @@ public class AppointmentService {
         dto.setTrainerName(app.getMyTrainer().getUsername());
         dto.setUserName(app.getMyTrainee().getUsername());
 
-        // weather θα μπει εδώ ΑΡΓΟΤΕΡΑ
-        dto.setWeather(null);
+        // weather (only for future appointments)
+        if (!app.getStartTime().isBefore(Instant.now())) {
+        	WeatherReportDto weatherReport = weatherService.getAthensWeatherAtInstant(app.getStartTime())
+    				.map(WeatherReportDto::createReport)
+    				.defaultIfEmpty(WeatherReportDto.unavailable())
+    				.block();
+            dto.setWeather(weatherReport);
+        }else {
+        	dto.setWeather(WeatherReportDto.createNullReport());
+        }
+        
 
         return dto;
     }
@@ -255,7 +281,7 @@ public class AppointmentService {
                 )
         );
         dto.setTrainerName(app.getMyTrainer().getUsername());
-        dto.setUserName(app.getMyTrainee().getUsername());
+        dto.setTraineeName(app.getMyTrainee().getUsername());
         return dto;
     }
 }

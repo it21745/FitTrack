@@ -5,6 +5,8 @@ import com.example.FitTrack.dto.appointment.AppointmentRequestDto;
 import com.example.FitTrack.dto.appointment.AppointmentResponseDto;
 import com.example.FitTrack.service.AppointmentService;
 import jakarta.validation.Valid;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -23,7 +25,7 @@ public class AppointmentRestController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole('ROLE_TRAINEE')")
     public ResponseEntity<AppointmentResponseDto> createAppointment(
             @Valid @RequestBody AppointmentRequestDto dto
     ) {
@@ -31,22 +33,27 @@ public class AppointmentRestController {
     }
 
     @GetMapping("/user")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole('ROLE_TRAINEE')")
     public ResponseEntity<List<AppointmentResponseDto>> getUserAppointments() {
-        return ResponseEntity.ok(appointmentService.getUserAppointments());
+    	return ResponseEntity.ok(appointmentService.getUserAppointments());
     }
 
     @GetMapping("/trainer")
-    @PreAuthorize("hasRole('TRAINER')")
+    @PreAuthorize("hasRole('ROLE_TRAINER')")
     public ResponseEntity<List<AppointmentResponseDto>> getTrainerAppointments() {
         return ResponseEntity.ok(appointmentService.getTrainerAppointments());
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('USER','TRAINER')")
+    @PreAuthorize("hasAnyRole('ROLE_TRAINEE','ROLE_TRAINER')")
     public ResponseEntity<AppointmentDetailsDto> getAppointmentDetails(
             @PathVariable Long id
     ) {
-        return ResponseEntity.ok(appointmentService.getAppointmentDetails(id));
+    	try {
+    	AppointmentDetailsDto details = appointmentService.getAppointmentDetails(id);
+    	return ResponseEntity.ok(details);
+    	} catch (RuntimeException e) {
+    		return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+		}
     }
 }

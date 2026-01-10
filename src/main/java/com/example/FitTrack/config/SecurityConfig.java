@@ -88,6 +88,8 @@ public class SecurityConfig {
 						"/calendar/trainer/view/**",
 						"/users/view/**",
 						"/users/save",
+						"/swagger-ui/**",
+						"/v3/api-docs/**",
 						"/images/**",
 						"/js/**",
 						"/css/**"

@@ -1,5 +1,6 @@
 package com.example.FitTrack.dto.appointment;
 
+import com.example.FitTrack.dto.WeatherReportDto;
 import com.example.FitTrack.dto.weather.WeatherDto;
 import com.example.FitTrack.enums.TrainingType;
 
@@ -12,7 +13,7 @@ public class AppointmentDetailsDto {
     private TrainingType trainingType;
     private String trainerName;
     private String userName;
-    private WeatherDto weather;
+    private WeatherReportDto weather;
 
     public Long getId() {
         return id;
@@ -54,11 +55,11 @@ public class AppointmentDetailsDto {
         this.userName = userName;
     }
 
-    public WeatherDto getWeather() {
+    public WeatherReportDto getWeather() {
         return weather;
     }
 
-    public void setWeather(WeatherDto weather) {
-        this.weather = weather;
+    public void setWeather(WeatherReportDto weatherReport) {
+        this.weather = weatherReport;
     }
 }

@@ -1,5 +1,6 @@
 package com.example.FitTrack.controllers;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -60,10 +61,16 @@ public class AppointmentController {
 		AppointmentValidationInfo appInfo = result.getInfo();
 		
 		//also check weather
-		WeatherReportDto weatherReport = weatherService.getAthensWeatherAtInstant(appInfo.getMyApp().getStartTime())
-				.map(WeatherReportDto::createReport)
-				.defaultIfEmpty(WeatherReportDto.unavailable())
-				.block();
+		WeatherReportDto weatherReport;
+		if (!appInfo.getMyApp().getStartTime().isBefore(Instant.now())) {
+			weatherReport = weatherService.getAthensWeatherAtInstant(appInfo.getMyApp().getStartTime())
+					.map(WeatherReportDto::createReport)
+					.defaultIfEmpty(WeatherReportDto.unavailable())
+					.block();
+		}else {
+			weatherReport = WeatherReportDto.createNullReport();
+		}
+		
 		
 		
 		//show appointment		

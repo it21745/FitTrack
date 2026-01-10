@@ -26,6 +26,17 @@ public class WeatherReportDto {
 		return dto;
 	}
 	
+	public static WeatherReportDto createNullReport() {
+		WeatherReportDto dto = new WeatherReportDto();
+		dto.setAvailable(false);
+		dto.setTemp(0);
+		dto.setPop(0);
+		dto.setCloudMain("");
+		dto.setCloudDescription("");
+		
+		return dto;
+	}
+	
 	
 	public String toString() {
 		if (!isAvailable()) {

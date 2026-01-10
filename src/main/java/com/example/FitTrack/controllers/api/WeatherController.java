@@ -1,4 +1,4 @@
-package com.example.FitTrack.controllers;
+package com.example.FitTrack.controllers.api;
 
 import com.example.FitTrack.dto.weather.WeatherDto;
 import com.example.FitTrack.service.WeatherService;
@@ -16,8 +16,8 @@ public class WeatherController {
         this.weatherService = weatherService;
     }
 
-    @GetMapping("/api/weather/{city}")
-    public Mono<WeatherDto> getWeather(@PathVariable String city) {
-        return weatherService.getWeatherForCity(city);
-    }
+//    @GetMapping("/api/weather/{city}")
+//    public Mono<WeatherDto> getWeather(@PathVariable String city) {
+//        return weatherService.getWeatherForCity(city);
+//    }
 }
