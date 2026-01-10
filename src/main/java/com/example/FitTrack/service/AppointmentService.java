@@ -119,9 +119,9 @@ public class AppointmentService {
 	
 	
 	@Transactional
-    public void updateAppointment(Appointment app) {
+    public void syncAppointmentStatus(Appointment app) {
     	//it just takes in an appointment and makes sure it's up to date
-    	//this method is used by other methods that want to update an appointment as a safety measure
+    	//this method is used by other methods that want to sync an appointment as a safety measure before updating it
     	Instant now = Instant.now();
     	if (app.getEndTime().isBefore(now)) {
     		if (app.getStatus().equals(AppointmentStatus.Accepted)) {

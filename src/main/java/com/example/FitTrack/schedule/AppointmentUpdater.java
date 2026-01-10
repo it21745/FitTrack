@@ -21,7 +21,7 @@ public class AppointmentUpdater {
     
     @Scheduled(fixedDelay = 60000)
     @Transactional
-    public void updateAllAppointments() {
+    public void syncAllAppointments() {
     	//this method is run once every minute
     	//it finds all appointments that have ended (and are either requested or accepted)
     	//and updates them to canceled or completed

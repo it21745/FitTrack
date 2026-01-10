@@ -12,15 +12,17 @@ public class AvailabilityValidationInfo {
 	private Availability confirmedAvailability;
 	private Instant startInstant;
 	private Instant endInstant;
+	private String weatherInfo;
 	
 	
 	public AvailabilityValidationInfo(SiteUser confirmedTrainer, SiteUser confirmedTrainee,
-			Availability confirmedAvailability, Instant startInstant, Instant endInstant) {
+			Availability confirmedAvailability, Instant startInstant, Instant endInstant, String weatherInfo) {
 		this.confirmedTrainer = confirmedTrainer;
 		this.confirmedTrainee = confirmedTrainee;
 		this.confirmedAvailability = confirmedAvailability;
 		this.startInstant = startInstant;
 		this.endInstant = endInstant;
+		this.weatherInfo = weatherInfo;
 	}
 	
 
@@ -72,6 +74,18 @@ public class AvailabilityValidationInfo {
 
 	public void setEndInstant(Instant endInstant) {
 		this.endInstant = endInstant;
+	}
+
+
+
+	public String getWeatherInfo() {
+		return weatherInfo;
+	}
+
+
+
+	public void setWeatherInfo(String weatherInfo) {
+		this.weatherInfo = weatherInfo;
 	}
 	
 	

@@ -26,7 +26,15 @@
 	    <span th:text="${date}"></span>.
 	  </p>
 	  
-	  <p>The weather on that day is predicted to be [ADD THIS LATER]</p>
+		<p th:if="${weather != null and !#strings.isEmpty(weather)}">
+		    The weather on that day is predicted to be: <br>
+		    <span th:text="${weather}"></span>
+		</p>
+		
+		<p th:unless="${weather != null and !#strings.isEmpty(weather)}">
+		    Weather prediction not available for this day.
+		</p>
+
 	
 	  <p>
 	    When you're ready, click the button below to send your request.
