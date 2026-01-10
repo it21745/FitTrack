@@ -19,6 +19,14 @@ import com.example.FitTrack.entities.Appointment;
 import com.example.FitTrack.entities.SiteUser;
 import com.example.FitTrack.enums.AppointmentStatus;
 
+import com.example.FitTrack.dto.appointment.AppointmentRequestDto;
+import com.example.FitTrack.dto.appointment.AppointmentResponseDto;
+import com.example.FitTrack.dto.appointment.AppointmentDetailsDto;
+
+import java.time.ZoneId;
+import java.time.Instant;
+import java.time.LocalDateTime;
+
 @Service
 public class AppointmentService {
 
@@ -131,7 +139,123 @@ public class AppointmentService {
     		}
     	}
     }
-	
-	
-	
+
+    @Transactional
+    public AppointmentResponseDto create(AppointmentRequestDto dto) {
+
+
+        SiteUser trainee = userRepo.findByUsername(
+                org.springframework.security.core.context.SecurityContextHolder
+                        .getContext()
+                        .getAuthentication()
+                        .getName()
+        ).orElseThrow(() -> new RuntimeException("Logged in user not found"));
+
+
+        SiteUser trainer = userRepo.findById(dto.getTrainerId().intValue())
+                .orElseThrow(() -> new RuntimeException("Trainer not found"));
+
+
+        Appointment app = new Appointment();
+        app.setMyTrainee(trainee);
+        app.setMyTrainer(trainer);
+        app.setStartTime(
+                dto.getAppointmentDate()
+                        .atZone(ZoneId.systemDefault())
+                        .toInstant()
+        );
+        app.setStatus(AppointmentStatus.Requested);
+
+
+        Appointment saved = saveAppointment(app);
+
+        return toResponseDto(saved);
+    }
+
+    @Transactional
+    public List<AppointmentResponseDto> getUserAppointments() {
+
+        SiteUser user = userRepo.findByUsername(
+                org.springframework.security.core.context.SecurityContextHolder
+                        .getContext()
+                        .getAuthentication()
+                        .getName()
+        ).orElseThrow(() -> new RuntimeException("User not found"));
+
+        List<Appointment> apps = repo.findByMyTrainee(user);
+
+        List<AppointmentResponseDto> result = new ArrayList<>();
+        for (Appointment app : apps) {
+            result.add(toResponseDto(app));
+        }
+        return result;
+    }
+
+    @Transactional
+    public List<AppointmentResponseDto> getTrainerAppointments() {
+
+        SiteUser trainer = userRepo.findByUsername(
+                org.springframework.security.core.context.SecurityContextHolder
+                        .getContext()
+                        .getAuthentication()
+                        .getName()
+        ).orElseThrow(() -> new RuntimeException("Trainer not found"));
+
+        List<Appointment> apps = repo.findByMyTrainer(trainer);
+
+        List<AppointmentResponseDto> result = new ArrayList<>();
+        for (Appointment app : apps) {
+            result.add(toResponseDto(app));
+        }
+        return result;
+    }
+
+    @Transactional
+    public AppointmentDetailsDto getAppointmentDetails(Long id) {
+
+        Authentication auth = org.springframework.security.core.context.SecurityContextHolder
+                .getContext()
+                .getAuthentication();
+
+        User user = (User) auth.getPrincipal();
+
+        AppointmentValidationResult validation =
+                validateRequest(user, auth, id.intValue());
+
+        if (!validation.isSuccess()) {
+            throw new RuntimeException(validation.getReason());
+        }
+
+        Appointment app = validation.getInfo().getMyApp();
+
+        AppointmentDetailsDto dto = new AppointmentDetailsDto();
+        dto.setId((long) app.getId());
+        dto.setAppointmentDate(
+                LocalDateTime.ofInstant(
+                        app.getStartTime(),
+                        ZoneId.systemDefault()
+                )
+        );
+        dto.setTrainerName(app.getMyTrainer().getUsername());
+        dto.setUserName(app.getMyTrainee().getUsername());
+
+        // weather θα μπει εδώ ΑΡΓΟΤΕΡΑ
+        dto.setWeather(null);
+
+        return dto;
+    }
+
+    private AppointmentResponseDto toResponseDto(Appointment app) {
+        AppointmentResponseDto dto = new AppointmentResponseDto();
+        dto.setId((long) app.getId());
+        dto.setAppointmentDate(
+                LocalDateTime.ofInstant(
+                        app.getStartTime(),
+                        ZoneId.systemDefault()
+                )
+        );
+        dto.setTrainerName(app.getMyTrainer().getUsername());
+        dto.setUserName(app.getMyTrainee().getUsername());
+        return dto;
+    }
 }

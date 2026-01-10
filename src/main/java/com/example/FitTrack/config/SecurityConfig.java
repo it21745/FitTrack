@@ -18,6 +18,8 @@ import com.example.FitTrack.config.jwt.JwtAuthenticationFilter;
 import com.example.FitTrack.service.SiteUserService;
 import com.example.FitTrack.service.UserRoleService;
 
+import jakarta.servlet.http.HttpServletResponse;
+
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(securedEnabled = true)
@@ -51,17 +53,25 @@ public class SecurityConfig {
 	@Bean
 	@Order(1)
 	public SecurityFilterChain apiFilterChain(HttpSecurity http) throws Exception {
-		http
-			.securityMatcher("/api/**")
-			.authorizeHttpRequests(requests -> requests
-					.requestMatchers("/api/auth/**").permitAll()
-					.anyRequest().authenticated())
-			.sessionManagement(session -> 
-					session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-			.csrf(csrf -> csrf.disable())
-			.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
-		
-		return http.build();
+        http
+                .securityMatcher("/api/**")
+                .authorizeHttpRequests(requests -> requests
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .anyRequest().authenticated()
+                )
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+                .csrf(csrf -> csrf.disable())
+                .exceptionHandling(ex ->
+                        ex.authenticationEntryPoint(
+                                (request, response, authException) ->
+                                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED)
+                        )
+                )
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+
+        return http.build();
 	}
 	
 	
@@ -91,17 +101,20 @@ public class SecurityConfig {
 			.logout((logout) -> logout.permitAll());
 		return http.build();
 	}
-	
-	
-	
-	@Bean
-	public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception{
-		return http.getSharedObject(AuthenticationManagerBuilder.class)
-				.userDetailsService(userDetailsService)
-				.passwordEncoder(passwordEncoder)
-				.and()
-				.build();
-	}
+
+
+
+    @Bean
+    public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
+        AuthenticationManagerBuilder builder =
+                http.getSharedObject(AuthenticationManagerBuilder.class);
+
+        builder
+                .userDetailsService(userDetailsService)
+                .passwordEncoder(passwordEncoder);
+
+        return builder.build();
+    }
 
 
 }

@@ -1,5 +1,7 @@
 package com.example.FitTrack.repository;
 
+import com.example.FitTrack.entities.SiteUser;
+
 import com.example.FitTrack.entities.Appointment;
 import com.example.FitTrack.enums.AppointmentStatus;
 
@@ -16,6 +18,10 @@ import org.springframework.stereotype.Repository;
 public interface AppointmentRepository extends JpaRepository<Appointment, Integer> {
 	List<Appointment> findByStatus(String status);
 	Optional<Appointment> findById(int id);
+
+    List<Appointment> findByMyTrainee(SiteUser trainee);
+
+    List<Appointment> findByMyTrainer(SiteUser trainer);
 	
 	
 	//jpsql χρησιμοποιει ονοματα οντοτητων java, οχι τα ονοματα που εχουν στην βαση
