@@ -25,8 +25,6 @@ import com.example.FitTrack.entities.Availability;
 import com.example.FitTrack.entities.SiteUser;
 import com.example.FitTrack.entities.UserRole;
 import com.example.FitTrack.enums.AppointmentStatus;
-import com.example.FitTrack.service.AppointmentService;
-import com.example.FitTrack.service.AvailabilityService;
 import com.example.FitTrack.service.SiteUserService;
 import com.example.FitTrack.service.UserRoleService;
 
@@ -202,13 +200,13 @@ public class CalendarController {
 					events.add(ev);
 				}
 			}else {
-				events.addAll(createRecuringAvailability(avail));
+				events.addAll(createRecurringAvailability(avail));
 			}
 		}
 		return events;
 	}
 	
-	private List<EventDto> createRecuringAvailability(Availability avail){
+	private List<EventDto> createRecurringAvailability(Availability avail){
 		List<EventDto> events = new ArrayList<>();
 		
 		

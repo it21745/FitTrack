@@ -1,16 +1,18 @@
-package com.example.FitTrack.dto.appointment;
+package com.example.FitTrack.dto.API_dto.appointment;
 
+import com.example.FitTrack.dto.WeatherReportDto;
 import com.example.FitTrack.enums.TrainingType;
 
 import java.time.LocalDateTime;
 
-public class AppointmentResponseDto {
+public class AppointmentDetailsDto {
 
     private Long id;
     private LocalDateTime appointmentDate;
     private TrainingType trainingType;
     private String trainerName;
-    private String traineeName;
+    private String userName;
+    private WeatherReportDto weather;
 
     public Long getId() {
         return id;
@@ -44,11 +46,19 @@ public class AppointmentResponseDto {
         this.trainerName = trainerName;
     }
 
-    public String getTraineeName() {
-        return traineeName;
+    public String getUserName() {
+        return userName;
     }
 
-    public void setTraineeName(String userName) {
-        this.traineeName = userName;
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public WeatherReportDto getWeather() {
+        return weather;
+    }
+
+    public void setWeather(WeatherReportDto weatherReport) {
+        this.weather = weatherReport;
     }
 }

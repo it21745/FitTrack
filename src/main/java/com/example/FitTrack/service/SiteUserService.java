@@ -1,6 +1,5 @@
 package com.example.FitTrack.service;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -14,13 +13,11 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.example.FitTrack.repository.AppointmentRepository;
 import com.example.FitTrack.repository.SiteUserRepository;
 import com.example.FitTrack.repository.UserRoleRepository;
 
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.FitTrack.entities.Appointment;
 import com.example.FitTrack.entities.SiteUser;
 import com.example.FitTrack.entities.UserRole;
 
@@ -29,14 +26,12 @@ public class SiteUserService implements UserDetailsService {
 
 	private SiteUserRepository userRepo;
 	private UserRoleRepository roleRepo;
-	private AppointmentRepository appRepo;
 	private BCryptPasswordEncoder passwordEncoder;
 
 	
-	public SiteUserService(SiteUserRepository userRepo, UserRoleRepository roleRepo, AppointmentRepository appRepo, BCryptPasswordEncoder passwordEncoder) {
+	public SiteUserService(SiteUserRepository userRepo, UserRoleRepository roleRepo, BCryptPasswordEncoder passwordEncoder) {
 		this.userRepo = userRepo;
 		this.roleRepo = roleRepo;
-		this.appRepo = appRepo;
 		this.passwordEncoder = passwordEncoder;
 	}
 	

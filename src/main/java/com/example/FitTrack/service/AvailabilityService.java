@@ -6,7 +6,9 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 
 import com.example.FitTrack.repository.AvailabilityRepository;
+import com.example.FitTrack.repository.SiteUserRepository;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 
 import com.example.FitTrack.dto.AvailabilityFormDto;
@@ -17,9 +19,11 @@ import com.example.FitTrack.entities.SiteUser;
 public class AvailabilityService {
 
 	private AvailabilityRepository repo;
+	private SiteUserRepository userRepo;
 
-	public AvailabilityService(AvailabilityRepository repo) {
+	public AvailabilityService(AvailabilityRepository repo, SiteUserRepository userRepo) {
 		this.repo = repo;
+		this.userRepo = userRepo;
 	}
 	
 	//methods
@@ -32,6 +36,27 @@ public class AvailabilityService {
 	@Transactional
 	public Optional<Availability> getAvailById(int id){
 		return repo.findById(id);
+	}
+	
+	public Optional<List<Availability>> getAvailByUserId(int id){
+		SiteUser user = userRepo.findById(id)
+				.orElseThrow(() -> new EntityNotFoundException("User not found"));
+		
+		//is a trainer (only trainers have availabilities)
+		boolean hasTrainerRole = user.getRoles().stream()
+		        .anyMatch(role -> "ROLE_TRAINER".equals(role.getName()));
+		if (!hasTrainerRole) {
+	        throw new IllegalStateException("User is not a trainer");
+	    }
+		
+		//get availabilities
+		List<Availability> avails = repo.findByMyTrainerId(id);
+		if (avails.isEmpty()) {
+			return Optional.empty();
+		}
+		
+		return Optional.of(avails);
+			
 	}
 	
 	@Transactional
