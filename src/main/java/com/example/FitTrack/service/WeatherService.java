@@ -1,8 +1,5 @@
 package com.example.FitTrack.service;
 
-import com.example.FitTrack.dto.weather.WeatherDto;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Instant;
 import java.util.Comparator;
 
@@ -22,7 +19,6 @@ public class WeatherService {
 	private final double ATHENS_LONGITUDE = 23.727539;
 	
     private final WebClient webClient;
-    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Value("${weather.api.key}")
     private String apiKey;
@@ -35,45 +31,6 @@ public class WeatherService {
                 .build();
     }
 
-//    public Mono<WeatherDto> getWeatherForCity(String city) {
-//        return webClient.get()
-//                .uri(uriBuilder -> uriBuilder
-//                        .path("/weather")
-//                        .queryParam("q", city)
-//                        .queryParam("appid", apiKey)
-//                        .queryParam("units", "metric")
-//                        .build()
-//                )
-//                .retrieve()
-//                .bodyToMono(String.class)
-//                .map(this::mapToDto);
-//    }
-//
-//    private WeatherDto mapToDto(String json) {
-//        try {
-//            JsonNode root = objectMapper.readTree(json);
-//
-//            String description = root
-//                    .path("weather")
-//                    .get(0)
-//                    .path("description")
-//                    .asText();
-//
-//            double temperature = root
-//                    .path("main")
-//                    .path("temp")
-//                    .asDouble();
-//
-//            WeatherDto dto = new WeatherDto();
-//            dto.setDescription(description);
-//            dto.setTemperature(temperature);
-//
-//            return dto;
-//
-//        } catch (Exception e) {
-//            throw new RuntimeException("Failed to parse weather response", e);
-//        }
-//    }
     
     //openweather returns a json of all predictions for the next few days
     //we receive it and find the closest moment to the one we are interested in

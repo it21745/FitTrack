@@ -21,13 +21,12 @@ import com.example.FitTrack.entities.Appointment;
 import com.example.FitTrack.entities.SiteUser;
 import com.example.FitTrack.enums.AppointmentStatus;
 
-import com.example.FitTrack.dto.appointment.AppointmentRequestDto;
-import com.example.FitTrack.dto.appointment.AppointmentResponseDto;
+import com.example.FitTrack.dto.API_dto.appointment.AppointmentRequestDto;
+import com.example.FitTrack.dto.API_dto.appointment.AppointmentResponseDto;
 import com.example.FitTrack.dto.WeatherReportDto;
-import com.example.FitTrack.dto.appointment.AppointmentDetailsDto;
+import com.example.FitTrack.dto.API_dto.appointment.AppointmentDetailsDto;
 
 import java.time.ZoneId;
-import java.time.Instant;
 import java.time.LocalDateTime;
 
 @Service

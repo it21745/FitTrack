@@ -2,7 +2,6 @@ package com.example.FitTrack.dto.API_dto;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Map;
 
 public class ForecastBlock {
 	private long dt;  //unix time, openweather calls it datetime

@@ -15,8 +15,6 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.example.FitTrack.config.jwt.JwtAuthenticationFilter;
-import com.example.FitTrack.service.SiteUserService;
-import com.example.FitTrack.service.UserRoleService;
 
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -25,8 +23,6 @@ import jakarta.servlet.http.HttpServletResponse;
 @EnableMethodSecurity(securedEnabled = true)
 public class SecurityConfig {
 	
-	private SiteUserService userService;
-	private UserRoleService roleService;
 	private BCryptPasswordEncoder passwordEncoder;
 	private UserDetailsService userDetailsService;
 	private JwtAuthenticationFilter jwtAuthFilter;
@@ -35,12 +31,9 @@ public class SecurityConfig {
 	
 	
 
-	public SecurityConfig(SiteUserService userService, UserRoleService roleService,
-			BCryptPasswordEncoder passwordEncoder, UserDetailsService userDetailsService,
+	public SecurityConfig(BCryptPasswordEncoder passwordEncoder, UserDetailsService userDetailsService,
 			JwtAuthenticationFilter jwtAuthFilter) {
 		
-		this.userService = userService;
-		this.roleService = roleService;
 		this.passwordEncoder = passwordEncoder;
 		this.userDetailsService = userDetailsService;
 		this.jwtAuthFilter = jwtAuthFilter;
@@ -56,7 +49,11 @@ public class SecurityConfig {
         http
                 .securityMatcher("/api/**")
                 .authorizeHttpRequests(requests -> requests
-                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers(
+                        		"/api/auth/**",
+                        		"/api/trainers",
+                        		"/api/availabilities/**"
+                        		).permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session ->

@@ -1,4 +1,4 @@
-package com.example.FitTrack.dto.appointment;
+package com.example.FitTrack.dto.API_dto.appointment;
 
 import com.example.FitTrack.enums.TrainingType;
 import jakarta.validation.constraints.Future;

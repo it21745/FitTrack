@@ -3,7 +3,6 @@ package com.example.FitTrack.controllers;
 import java.util.Optional;
 
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Controller;
@@ -20,10 +19,8 @@ import com.example.FitTrack.dto.validation.AvailabilityValidationInfo;
 import com.example.FitTrack.dto.validation.AvailabilityValidationResult;
 import com.example.FitTrack.entities.Availability;
 import com.example.FitTrack.entities.SiteUser;
-import com.example.FitTrack.service.AppointmentService;
 import com.example.FitTrack.service.AvailabilityService;
 import com.example.FitTrack.service.SiteUserService;
-import com.example.FitTrack.service.UserRoleService;
 
 import jakarta.validation.Valid;
 
